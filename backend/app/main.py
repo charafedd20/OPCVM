@@ -36,6 +36,10 @@ app.include_router(health.router, prefix="/api", tags=["Health"])
 app.include_router(data.router, prefix="/api/v1", tags=["Data"])
 app.include_router(optimization.router, prefix="/api/v1", tags=["Optimization"])
 
+# Analytics router
+from app.api.routes import analytics
+app.include_router(analytics.router, prefix="/api/v1", tags=["Analytics"])
+
 
 @app.get("/")
 async def root():
