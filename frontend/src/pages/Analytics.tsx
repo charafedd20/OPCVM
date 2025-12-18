@@ -194,7 +194,7 @@ function Analytics() {
               >
                 {stocksSummary?.most_traded_stocks?.map((stock: any) => (
                   <option key={stock.symbol} value={stock.symbol}>
-                    {stock.symbol} - {stocksSummary?.most_traded_stocks?.find((s: any) => s.symbol === stock.symbol)?.name || stock.symbol}
+                    {stock.symbol} - {stock.name || stock.symbol}
                   </option>
                 ))}
               </select>
