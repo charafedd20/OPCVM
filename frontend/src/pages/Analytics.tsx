@@ -13,7 +13,16 @@ function Analytics() {
   const [opcvmSummary, setOpcvmSummary] = useState<any>(null)
   const [marketOverview, setMarketOverview] = useState<any>(null)
   const [selectedSymbol, setSelectedSymbol] = useState('ATW')
+  const [selectedPeriod, setSelectedPeriod] = useState(30) // Default: 1 month
   const [loading, setLoading] = useState(true)
+
+  const periods = [
+    { label: '1 mois', days: 30 },
+    { label: '3 mois', days: 90 },
+    { label: '6 mois', days: 180 },
+    { label: '1 an', days: 365 },
+    { label: '3 ans', days: 1095 },
+  ]
 
   useEffect(() => {
     fetchAllData()
@@ -23,7 +32,7 @@ function Analytics() {
     if (selectedSymbol) {
       fetchStockData(selectedSymbol)
     }
-  }, [selectedSymbol])
+  }, [selectedSymbol, selectedPeriod])
 
   const fetchAllData = async () => {
     try {
@@ -47,8 +56,8 @@ function Analytics() {
   const fetchStockData = async (symbol: string) => {
     try {
       const [stats, chart] = await Promise.all([
-        axios.get(`${API_BASE}/analytics/stocks/${symbol}/statistics?days=30`),
-        axios.get(`${API_BASE}/analytics/stocks/${symbol}/chart-data?chart_type=line&days=30`)
+        axios.get(`${API_BASE}/analytics/stocks/${symbol}/statistics?days=${selectedPeriod}`),
+        axios.get(`${API_BASE}/analytics/stocks/${symbol}/chart-data?chart_type=line&days=${selectedPeriod}`)
       ])
       
       setStockStats(stats.data)
@@ -171,58 +180,147 @@ function Analytics() {
         {/* Stock Analysis */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h2 className="text-2xl font-bold mb-4">Analyse d'action</h2>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Sélectionner une action:
-            </label>
-            <select
-              value={selectedSymbol}
-              onChange={(e) => setSelectedSymbol(e.target.value)}
-              className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              {stocksSummary?.most_traded_stocks?.map((stock: any) => (
-                <option key={stock.symbol} value={stock.symbol}>
-                  {stock.symbol}
-                </option>
-              ))}
-            </select>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {/* Stock Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Sélectionner une action:
+              </label>
+              <select
+                value={selectedSymbol}
+                onChange={(e) => setSelectedSymbol(e.target.value)}
+                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                {stocksSummary?.most_traded_stocks?.map((stock: any) => (
+                  <option key={stock.symbol} value={stock.symbol}>
+                    {stock.symbol} - {stocksSummary?.most_traded_stocks?.find((s: any) => s.symbol === stock.symbol)?.name || stock.symbol}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Period Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Période d'analyse:
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {periods.map((period) => (
+                  <button
+                    key={period.days}
+                    onClick={() => setSelectedPeriod(period.days)}
+                    className={`px-4 py-2 rounded-md font-medium transition-all ${
+                      selectedPeriod === period.days
+                        ? 'bg-primary-600 text-white shadow-md'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {period.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           {chartData.length > 0 && (
             <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-2">Évolution du prix - {selectedSymbol}</h3>
-              <ResponsiveContainer width="100%" height={300}>
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-lg font-semibold">
+                  Évolution du prix - {selectedSymbol}
+                </h3>
+                <span className="text-sm text-gray-500">
+                  Période: {periods.find(p => p.days === selectedPeriod)?.label} ({chartData.length} points)
+                </span>
+              </div>
+              <ResponsiveContainer width="100%" height={400}>
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
+                  <XAxis 
+                    dataKey="date" 
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                    interval="preserveStartEnd"
+                  />
                   <YAxis />
-                  <Tooltip />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', border: '1px solid #ccc' }}
+                  />
                   <Legend />
-                  <Line type="monotone" dataKey="price" stroke="#667eea" strokeWidth={2} name="Prix (MAD)" />
+                  <Line 
+                    type="monotone" 
+                    dataKey="price" 
+                    stroke="#667eea" 
+                    strokeWidth={2} 
+                    name="Prix (MAD)"
+                    dot={false}
+                    activeDot={{ r: 6 }}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </div>
           )}
 
           {stockStats && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-blue-50 p-4 rounded">
-                <p className="text-sm text-gray-600">Rendement total (30j)</p>
-                <p className={`text-2xl font-bold ${stockStats.price_trend.change_percent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {stockStats.price_trend.change_percent.toFixed(2)}%
+            <div>
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-1">
+                  Période analysée: {stockStats.period_days} jours ({stockStats.data_points} points de données)
+                </p>
+                <p className="text-xs text-gray-500">
+                  {stockStats.date_range?.start && new Date(stockStats.date_range.start).toLocaleDateString()} - 
+                  {stockStats.date_range?.end && new Date(stockStats.date_range.end).toLocaleDateString()}
                 </p>
               </div>
-              <div className="bg-green-50 p-4 rounded">
-                <p className="text-sm text-gray-600">Volatilité annualisée</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {stockStats.returns_statistics.volatility_annualized.toFixed(2)}%
-                </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-blue-50 p-4 rounded">
+                  <p className="text-sm text-gray-600">Rendement total</p>
+                  <p className={`text-2xl font-bold ${stockStats.price_trend.change_percent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {stockStats.price_trend.change_percent.toFixed(2)}%
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {stockStats.price_trend.first_price.toFixed(2)} → {stockStats.price_trend.last_price.toFixed(2)} MAD
+                  </p>
+                </div>
+                <div className="bg-green-50 p-4 rounded">
+                  <p className="text-sm text-gray-600">Volatilité annualisée</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    {stockStats.returns_statistics.volatility_annualized.toFixed(2)}%
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Écart-type quotidien: {(stockStats.returns_statistics.std_daily * 100).toFixed(2)}%
+                  </p>
+                </div>
+                <div className="bg-purple-50 p-4 rounded">
+                  <p className="text-sm text-gray-600">Sharpe Ratio</p>
+                  <p className="text-2xl font-bold text-purple-600">
+                    {stockStats.returns_statistics.sharpe_ratio.toFixed(2)}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Rendement moyen: {(stockStats.returns_statistics.mean_daily * 100).toFixed(3)}%/jour
+                  </p>
+                </div>
               </div>
-              <div className="bg-purple-50 p-4 rounded">
-                <p className="text-sm text-gray-600">Sharpe Ratio</p>
-                <p className="text-2xl font-bold text-purple-600">
-                  {stockStats.returns_statistics.sharpe_ratio.toFixed(2)}
-                </p>
+              
+              {/* Additional Statistics */}
+              <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-gray-50 p-3 rounded">
+                  <p className="text-xs text-gray-600">Prix moyen</p>
+                  <p className="text-lg font-semibold">{stockStats.price_statistics.close.mean.toFixed(2)} MAD</p>
+                </div>
+                <div className="bg-gray-50 p-3 rounded">
+                  <p className="text-xs text-gray-600">Prix min</p>
+                  <p className="text-lg font-semibold">{stockStats.price_statistics.close.min.toFixed(2)} MAD</p>
+                </div>
+                <div className="bg-gray-50 p-3 rounded">
+                  <p className="text-xs text-gray-600">Prix max</p>
+                  <p className="text-lg font-semibold">{stockStats.price_statistics.close.max.toFixed(2)} MAD</p>
+                </div>
+                <div className="bg-gray-50 p-3 rounded">
+                  <p className="text-xs text-gray-600">Volume moyen</p>
+                  <p className="text-lg font-semibold">{(stockStats.volume_statistics.mean / 1000).toFixed(0)}K</p>
+                </div>
               </div>
             </div>
           )}
