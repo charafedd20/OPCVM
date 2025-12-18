@@ -51,50 +51,58 @@ async def get_stock_history(
         description="End date (YYYY-MM-DD format)",
         regex=r'^\d{4}-\d{2}-\d{2}$'
     ),
+    days: Optional[int] = Query(
+        None,
+        description="Number of days back from end_date (alternative to start_date)",
+        ge=1,
+        le=3650  # Max 10 years
+    ),
     use_cache: bool = Query(True, description="Use cached data if available")
 ):
     """
     Get historical price data for a stock
     
-    - **symbol**: Stock symbol (e.g., "ATW", "IAM")
-    - **start_date**: Start date in YYYY-MM-DD format (default: 1 year ago)
+    - **symbol**: Stock symbol (e.g., "ATW", "IAM", "CSH", "AKD", "SGT")
+    - **start_date**: Start date in YYYY-MM-DD format (optional)
     - **end_date**: End date in YYYY-MM-DD format (default: today)
+    - **days**: Number of days back from end_date (alternative to start_date, max 3650)
     - **use_cache**: Use cached data or fetch fresh
     
     Returns list of price data with date, open, high, low, close, volume
     """
-        try:
-            # Handle days parameter
-            if days and not start_date:
-                from datetime import datetime, timedelta
-                end_dt = datetime.strptime(end_date, '%Y-%m-%d') if end_date else datetime.now()
-                start_date = (end_dt - timedelta(days=days)).strftime('%Y-%m-%d')
-            
-            # Validate date format if provided
-            if start_date:
-                try:
-                    datetime.strptime(start_date, '%Y-%m-%d')
-                except ValueError:
-                    raise HTTPException(
-                        status_code=400,
-                        detail="start_date must be in YYYY-MM-DD format"
-                    )
-            
-            if end_date:
-                try:
-                    datetime.strptime(end_date, '%Y-%m-%d')
-                except ValueError:
-                    raise HTTPException(
-                        status_code=400,
-                        detail="end_date must be in YYYY-MM-DD format"
-                    )
-            
-            history = await data_service.get_stock_history(
-                symbol=symbol,
-                start_date=start_date,
-                end_date=end_date,
-                use_cache=use_cache
-            )
+    try:
+        # Handle days parameter
+        if days and not start_date:
+            from datetime import datetime, timedelta
+            end_dt = datetime.strptime(end_date, '%Y-%m-%d') if end_date else datetime.now()
+            start_date = (end_dt - timedelta(days=days)).strftime('%Y-%m-%d')
+            logger.info(f"Using days parameter: {days} days back from {end_dt.strftime('%Y-%m-%d')}")
+        
+        # Validate date format if provided
+        if start_date:
+            try:
+                datetime.strptime(start_date, '%Y-%m-%d')
+            except ValueError:
+                raise HTTPException(
+                    status_code=400,
+                    detail="start_date must be in YYYY-MM-DD format"
+                )
+        
+        if end_date:
+            try:
+                datetime.strptime(end_date, '%Y-%m-%d')
+            except ValueError:
+                raise HTTPException(
+                    status_code=400,
+                    detail="end_date must be in YYYY-MM-DD format"
+                )
+        
+        history = await data_service.get_stock_history(
+            symbol=symbol,
+            start_date=start_date,
+            end_date=end_date,
+            use_cache=use_cache
+        )
         
         if not history:
             logger.warning(f"No history found for symbol {symbol}")
