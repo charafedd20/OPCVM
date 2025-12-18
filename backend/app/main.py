@@ -4,7 +4,15 @@ Portfolio Optimizer Pro - FastAPI Main Application
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
+from app.core.logging_config import setup_logging
 from app.api.routes import optimization, data, health
+from app.database.models import init_db
+
+# Setup logging
+setup_logging()
+
+# Initialize database
+init_db()
 
 app = FastAPI(
     title="Portfolio Optimizer Pro API",
