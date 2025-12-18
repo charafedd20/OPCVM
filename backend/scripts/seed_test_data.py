@@ -16,13 +16,16 @@ def seed_stock_data():
     db = SessionLocal()
     
     try:
-        # Sample stocks
+        # Sample stocks - Including requested stocks: Cashplus, Akdital, SGTM
         stocks = [
             {"symbol": "ATW", "name": "Attijariwafa Bank", "sector": "Banking", "market_cap": 50000000000},
             {"symbol": "IAM", "name": "Itissalat Al-Maghrib", "sector": "Telecommunications", "market_cap": 30000000000},
             {"symbol": "BCP", "name": "Banque Centrale Populaire", "sector": "Banking", "market_cap": 40000000000},
             {"symbol": "LAA", "name": "LafargeHolcim Maroc", "sector": "Construction", "market_cap": 15000000000},
             {"symbol": "CDM", "name": "Ciments du Maroc", "sector": "Construction", "market_cap": 8000000000},
+            {"symbol": "CSH", "name": "Cashplus", "sector": "Financial Services", "market_cap": 5000000000},
+            {"symbol": "AKD", "name": "Akdital", "sector": "Healthcare", "market_cap": 3000000000},
+            {"symbol": "SGT", "name": "SGTM - Société Générale des Travaux du Maroc", "sector": "Construction", "market_cap": 2000000000},
         ]
         
         # Create stock info
