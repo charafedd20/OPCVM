@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Démonstration Mathématique - Programmation Quadratique pour Optimisation de Portefeuille</title>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true,
+                packages: {'[+]': ['ams', 'newcommand', 'configMacros']}
+            },
+            options: {
+                ignoreHtmlClass: 'tex2jax_ignore',
+                processHtmlClass: 'tex2jax_process'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: #764ba2;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-left: 5px solid #764ba2;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #667eea;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .theorem {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .theorem-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .proof {
+            background: #fff9e6;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .proof-title {
+            font-weight: bold;
+            color: #f57c00;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .definition {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .definition-title {
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .formula {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+
+        .step {
+            margin: 15px 0;
+            padding: 10px;
+            background: #fafafa;
+            border-radius: 5px;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .note {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .note-title {
+            font-weight: bold;
+            color: #1976d2;
+            margin-bottom: 5px;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-top: 10px;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        .matrix {
+            display: inline-block;
+            margin: 10px 0;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #d63384;
+        }
+
+        .conclusion {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .conclusion h2 {
+            color: white;
+            border: none;
+            padding: 0;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Programmation Quadratique pour Optimisation de Portefeuille</h1>
+        <p class="subtitle">Démonstration Mathématique Complète avec Preuve Formelle</p>
+        
+        <div style="background: #e3f2fd; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+            <p><strong>✅ Fichier chargé avec succès !</strong> Si les formules mathématiques ne s'affichent pas immédiatement, attendez quelques secondes le chargement de MathJax.</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">Si vous voyez ce message, le HTML fonctionne correctement. Les formules mathématiques se chargeront automatiquement.</p>
+        </div>
+        
+        <noscript>
+            <div style="background: #ffebee; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #f44336;">
+                <p><strong>⚠️ JavaScript est désactivé.</strong> Veuillez activer JavaScript pour afficher les formules mathématiques.</p>
+            </div>
+        </noscript>
+
+        <h2>📐 1. Formulation du Problème</h2>
+
+        <div class="note" style="background: #fff3e0; border-left-color: #ff9800;">
+            <div class="note-title" style="color: #e65100;">💡 Pourquoi cette formulation ?</div>
+            <p><strong>Le problème fondamental en gestion de portefeuille :</strong> Comment allouer son capital entre différents actifs pour maximiser le rendement tout en minimisant le risque ?</p>
+            <p><strong>L'idée de Markowitz (1952) :</strong> Au lieu de chercher uniquement le rendement maximum, on cherche le meilleur <strong>compromis</strong> entre rendement et risque. C'est la base de la théorie moderne du portefeuille.</p>
+            <p><strong>Pourquoi minimiser la variance ?</strong> La variance mesure la <strong>volatilité</strong> (l'écart-type des rendements). Un portefeuille avec une faible variance a des rendements plus stables et prévisibles, ce qui est généralement préféré par les investisseurs averses au risque.</p>
+            <p><strong>Le lien avec la diversification :</strong> En combinant des actifs avec des corrélations différentes, on peut réduire la variance totale du portefeuille sans nécessairement réduire le rendement. C'est le principe de la diversification.</p>
+        </div>
+
+        <div class="definition">
+            <div class="definition-title">Définition 1.1 : Problème d'Optimisation Mean-Variance (Markowitz)</div>
+            <p>Soit un portefeuille de $n$ actifs. On cherche à minimiser la variance du portefeuille sous contraintes de rendement et de budget.</p>
+        </div>
+
+        <div class="formula">
+            <p><strong>Problème d'optimisation :</strong></p>
+            $$
+            \begin{aligned}
+            \min_{\mathbf{w}} \quad & \mathbf{w}^T \boldsymbol{\Sigma} \mathbf{w} \\
+            \text{s.t.} \quad & \mathbf{w}^T \boldsymbol{\mu} = r_{\text{target}} \\
+            & \mathbf{1}^T \mathbf{w} = 1 \\
+            & \mathbf{w} \geq \mathbf{0} \\
+            & \mathbf{w} \leq \mathbf{w}_{\max}
+            \end{aligned}
+            $$
+        </div>
+
+        <div class="note">
+            <div class="note-title">Notations :</div>
+            <ul>
+                <li>$\mathbf{w} \in \mathbb{R}^n$ : vecteur de poids (allocation) du portefeuille</li>
+                <li>$\boldsymbol{\Sigma} \in \mathbb{R}^{n \times n}$ : matrice de covariance des rendements (symétrique, définie positive)</li>
+                <li>$\boldsymbol{\mu} \in \mathbb{R}^n$ : vecteur des rendements espérés</li>
+                <li>$r_{\text{target}}$ : rendement cible du portefeuille</li>
+                <li>$\mathbf{1} = [1, 1, \ldots, 1]^T$ : vecteur unitaire</li>
+                <li>$\mathbf{w}_{\max}$ : vecteur des poids maximums autorisés</li>
+            </ul>
+        </div>
+
+        <div class="note" style="background: #e8f5e9; border-left-color: #4caf50;">
+            <div class="note-title" style="color: #2e7d32;">🔗 Comprendre chaque contrainte :</div>
+            <p><strong>1. $\mathbf{w}^T \boldsymbol{\mu} = r_{\text{target}}$ (Contrainte de rendement) :</strong></p>
+            <p>Cette contrainte garantit que le portefeuille aura exactement le rendement espéré souhaité. <strong>Pourquoi ?</strong> L'investisseur a un objectif de rendement précis. En fixant cette contrainte, on explore tous les portefeuilles possibles avec ce rendement, et on choisit celui avec le risque minimal.</p>
+            
+            <p><strong>2. $\mathbf{1}^T \mathbf{w} = 1$ (Contrainte de budget) :</strong></p>
+            <p>Cela signifie que la somme des poids est égale à 1 (100% du capital est investi). <strong>Pourquoi ?</strong> On ne peut pas investir plus que ce qu'on a, et on veut utiliser tout le capital disponible (pas de cash non investi dans ce modèle).</p>
+            
+            <p><strong>3. $\mathbf{w} \geq \mathbf{0}$ (Pas de vente à découvert) :</strong></p>
+            <p>Chaque poids est positif ou nul. <strong>Pourquoi ?</strong> En vente à découvert, on emprunte un actif pour le vendre (poids négatif). Cette contrainte simplifie le problème et correspond à la réglementation de nombreux OPCVM qui interdisent la vente à découvert.</p>
+            
+            <p><strong>4. $\mathbf{w} \leq \mathbf{w}_{\max}$ (Diversification) :</strong></p>
+            <p>Limite le poids maximum par actif. <strong>Pourquoi ?</strong> Pour éviter la concentration excessive (ex: mettre 90% dans un seul actif). C'est une contrainte de <strong>diversification</strong> importante pour les OPCVM qui doivent respecter des règles de répartition du risque.</p>
+        </div>
+
+        <h2>🔍 2. Propriétés Mathématiques</h2>
+
+        <div class="note" style="background: #e1f5fe; border-left-color: #0288d1;">
+            <div class="note-title" style="color: #01579b;">💡 Pourquoi la convexité est cruciale ?</div>
+            <p><strong>Le problème de l'optimisation non-convexe :</strong> Si la fonction objectif n'est pas convexe, il peut exister plusieurs <strong>minima locaux</strong>. Un algorithme pourrait trouver un minimum local qui n'est pas le meilleur (minimum global), et on ne saurait jamais si on a trouvé la vraie solution optimale.</p>
+            
+            <p><strong>L'avantage de la convexité :</strong> Pour une fonction convexe, tout minimum local est automatiquement un <strong>minimum global</strong>. Cela garantit que :</p>
+            <ul>
+                <li>La solution trouvée est <strong>unique</strong> (si la fonction est strictement convexe)</li>
+                <li>Les algorithmes d'optimisation convergent vers la <strong>vraie</strong> solution optimale</li>
+                <li>On peut utiliser des méthodes efficaces et rapides (comme les solveurs QP)</li>
+            </ul>
+            
+            <p><strong>Pourquoi $\mathbf{w}^T \boldsymbol{\Sigma} \mathbf{w}$ est convexe ?</strong> Cette forme quadratique représente la variance du portefeuille. La variance est toujours positive (ou nulle), ce qui se traduit mathématiquement par le fait que $\boldsymbol{\Sigma}$ est semi-définie positive. C'est cette propriété qui garantit la convexité.</p>
+            
+            <p><strong>Le lien avec la matrice de covariance :</strong> La matrice $\boldsymbol{\Sigma}$ contient les variances (diagonale) et les covariances (hors diagonale). Elle est toujours symétrique car $\text{Cov}(X_i, X_j) = \text{Cov}(X_j, X_i)$, et semi-définie positive car elle représente une forme quadratique de variance (toujours $\geq 0$).</p>
+        </div>
+
+        <div class="theorem">
+            <div class="theorem-title">Théorème 2.1 : Convexité du Problème</div>
+            <p>Le problème d'optimisation mean-variance est un <span class="highlight">problème de programmation quadratique convexe</span>.</p>
+        </div>
+
+        <div class="proof">
+            <div class="proof-title">Preuve :</div>
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>Fonction objectif :</strong> $f(\mathbf{w}) = \mathbf{w}^T \boldsymbol{\Sigma} \mathbf{w}$
+            </div>
+            <p>La matrice $\boldsymbol{\Sigma}$ est la matrice de covariance, donc elle est <strong>symétrique</strong> et <strong>semi-définie positive</strong> (voire définie positive si les actifs ne sont pas parfaitement corrélés).</p>
+            
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>Hessienne :</strong> $\nabla^2 f(\mathbf{w}) = 2\boldsymbol{\Sigma}$
+            </div>
+            <p>Pour vérifier la convexité, on calcule la Hessienne :</p>
+            $$
+            \frac{\partial^2 f}{\partial w_i \partial w_j} = 2\Sigma_{ij}
+            $$
+            <p>Donc $\nabla^2 f(\mathbf{w}) = 2\boldsymbol{\Sigma}$.</p>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <strong>Condition de convexité :</strong>
+            </div>
+            <p>Puisque $\boldsymbol{\Sigma}$ est semi-définie positive, pour tout $\mathbf{v} \in \mathbb{R}^n$ :</p>
+            $$
+            \mathbf{v}^T \nabla^2 f(\mathbf{w}) \mathbf{v} = 2\mathbf{v}^T \boldsymbol{\Sigma} \mathbf{v} \geq 0
+            $$
+            <p>Donc $f$ est <strong>convexe</strong>.</p>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <strong>Contraintes linéaires :</strong>
+            </div>
+            <p>Les contraintes sont toutes <strong>linéaires</strong> (égalités et inégalités), donc l'ensemble réalisable est <strong>convexe</strong>.</p>
+
+            <p><strong>Conclusion :</strong> Le problème est un problème d'optimisation convexe, garantissant l'existence d'un minimum global unique (si $\boldsymbol{\Sigma}$ est définie positive).</p>
+        </div>
+
+        <h2>⚙️ 3. Conditions de Karush-Kuhn-Tucker (KKT)</h2>
+
+        <div class="note" style="background: #f3e5f5; border-left-color: #9c27b0;">
+            <div class="note-title" style="color: #6a1b9a;">💡 Pourquoi les conditions KKT ?</div>
+            <p><strong>Le problème de l'optimisation avec contraintes :</strong> Quand on cherche le minimum d'une fonction avec des contraintes, on ne peut pas simplement annuler le gradient (comme en optimisation sans contraintes). Il faut tenir compte du fait que la solution doit respecter les contraintes.</p>
+            
+            <p><strong>L'idée du Lagrangien :</strong> Au lieu de minimiser $f(\mathbf{w})$ sous contraintes, on transforme le problème en minimisant une fonction combinée (le Lagrangien) qui inclut les contraintes via des <strong>multiplicateurs de Lagrange</strong>. Ces multiplicateurs mesurent le "coût" de chaque contrainte.</p>
+            
+            <p><strong>Intuition des multiplicateurs :</strong></p>
+            <ul>
+                <li><strong>$\lambda_1$ (rendement) :</strong> Mesure combien la variance augmenterait si on relâchait la contrainte de rendement. Si $\lambda_1$ est grand, la contrainte de rendement est "coûteuse" en termes de risque.</li>
+                <li><strong>$\lambda_2$ (budget) :</strong> Mesure l'impact de la contrainte de budget sur l'optimisation.</li>
+                <li><strong>$\boldsymbol{\nu}$ (poids positifs) :</strong> Si $\nu_i > 0$, alors $w_i = 0$ (la contrainte est active). Cela signifie que l'actif $i$ n'est pas dans le portefeuille optimal.</li>
+                <li><strong>$\boldsymbol{\eta}$ (poids maximums) :</strong> Si $\eta_i > 0$, alors $w_i = w_{\max,i}$ (on a atteint la limite).</li>
+            </ul>
+            
+            <p><strong>Pourquoi "conditions nécessaires et suffisantes" ?</strong></p>
+            <ul>
+                <li><strong>Nécessaires :</strong> Si $\mathbf{w}^*$ est optimal, alors il doit satisfaire les conditions KKT (on ne peut pas être optimal sans les satisfaire).</li>
+                <li><strong>Suffisantes :</strong> Si $\mathbf{w}^*$ satisfait les conditions KKT et que le problème est convexe, alors $\mathbf{w}^*$ est optimal (c'est suffisant pour garantir l'optimalité).</li>
+            </ul>
+            
+            <p><strong>Le lien avec l'optimisation :</strong> Les conditions KKT sont la généralisation des conditions classiques "gradient = 0" pour les problèmes avec contraintes. Elles permettent de caractériser mathématiquement la solution optimale.</p>
+        </div>
+
+        <div class="theorem">
+            <div class="theorem-title">Théorème 3.1 : Conditions KKT Nécessaires et Suffisantes</div>
+            <p>Pour un problème d'optimisation convexe avec contraintes d'égalité et d'inégalité, les conditions KKT sont nécessaires et suffisantes pour l'optimalité.</p>
+        </div>
+
+        <div class="formula">
+            <p><strong>Lagrangien :</strong></p>
+            $$
+            \mathcal{L}(\mathbf{w}, \lambda_1, \lambda_2, \boldsymbol{\nu}, \boldsymbol{\eta}) = \mathbf{w}^T \boldsymbol{\Sigma} \mathbf{w} 
+            - \lambda_1(\mathbf{w}^T \boldsymbol{\mu} - r_{\text{target}})
+            - \lambda_2(\mathbf{1}^T \mathbf{w} - 1)
+            - \boldsymbol{\nu}^T \mathbf{w}
+            - \boldsymbol{\eta}^T (\mathbf{w}_{\max} - \mathbf{w})
+            $$
+        </div>
+
+        <div class="note">
+            <div class="note-title">Multiplicateurs de Lagrange :</div>
+            <ul>
+                <li>$\lambda_1 \in \mathbb{R}$ : multiplicateur pour la contrainte de rendement</li>
+                <li>$\lambda_2 \in \mathbb{R}$ : multiplicateur pour la contrainte de budget</li>
+                <li>$\boldsymbol{\nu} \geq \mathbf{0}$ : multiplicateurs pour $\mathbf{w} \geq \mathbf{0}$</li>
+                <li>$\boldsymbol{\eta} \geq \mathbf{0}$ : multiplicateurs pour $\mathbf{w} \leq \mathbf{w}_{\max}$</li>
+            </ul>
+        </div>
+
+        <div class="proof">
+            <div class="proof-title">Conditions KKT :</div>
+            
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>Stationnarité (gradient du Lagrangien = 0) :</strong>
+            </div>
+            $$
+            \nabla_{\mathbf{w}} \mathcal{L} = 2\boldsymbol{\Sigma}\mathbf{w} - \lambda_1 \boldsymbol{\mu} - \lambda_2 \mathbf{1} - \boldsymbol{\nu} + \boldsymbol{\eta} = \mathbf{0}
+            $$
+            <p>Donc :</p>
+            $$
+            2\boldsymbol{\Sigma}\mathbf{w} = \lambda_1 \boldsymbol{\mu} + \lambda_2 \mathbf{1} + \boldsymbol{\nu} - \boldsymbol{\eta} \tag{1}
+            $$
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>Faisabilité primale :</strong>
+            </div>
+            $$
+            \begin{aligned}
+            \mathbf{w}^T \boldsymbol{\mu} &= r_{\text{target}} \tag{2} \\
+            \mathbf{1}^T \mathbf{w} &= 1 \tag{3} \\
+            \mathbf{w} &\geq \mathbf{0} \tag{4} \\
+            \mathbf{w} &\leq \mathbf{w}_{\max} \tag{5}
+            \end{aligned}
+            $$
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <strong>Faisabilité duale :</strong>
+            </div>
+            $$
+            \boldsymbol{\nu} \geq \mathbf{0}, \quad \boldsymbol{\eta} \geq \mathbf{0} \tag{6}
+            $$
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <strong>Complémentarité :</strong>
+            </div>
+            $$
+            \begin{aligned}
+            \nu_i w_i &= 0, \quad \forall i \tag{7} \\
+            \eta_i (w_{\max,i} - w_i) &= 0, \quad \forall i \tag{8}
+            \end{aligned}
+            $$
+            <p>Ces conditions signifient que si une contrainte n'est pas active (satellite), son multiplicateur est nul.</p>
+        </div>
+
+        <h2>🔧 4. Résolution du Problème</h2>
+
+        <div class="note" style="background: #fff9c4; border-left-color: #fbc02d;">
+            <div class="note-title" style="color: #f57f17;">💡 Pourquoi deux approches de résolution ?</div>
+            <p><strong>Cas simplifié (analytique) :</strong> Quand on ignore les contraintes de bornes ($\mathbf{w} \geq \mathbf{0}$ et $\mathbf{w} \leq \mathbf{w}_{\max}$), on peut résoudre le problème <strong>analytiquement</strong> (avec des formules explicites). C'est utile pour :</p>
+            <ul>
+                <li>Comprendre la structure mathématique de la solution</li>
+                <li>Calculer rapidement des approximations</li>
+                <li>Vérifier les résultats des méthodes numériques</li>
+            </ul>
+            
+            <p><strong>Cas général (numérique) :</strong> Avec toutes les contraintes, on doit utiliser des <strong>algorithmes numériques</strong> car :</p>
+            <ul>
+                <li>Les contraintes d'inégalité créent des "frontières" dans l'espace des solutions</li>
+                <li>Il faut identifier quelles contraintes sont "actives" (satellites) à l'optimum</li>
+                <li>La solution analytique devient trop complexe</li>
+            </ul>
+            
+            <p><strong>Le lien avec les solveurs :</strong> Les solveurs modernes (CVXPY, scipy.optimize) utilisent des méthodes sophistiquées (point intérieur, active-set) qui explorent intelligemment l'espace des solutions pour trouver l'optimum.</p>
+        </div>
+
+        <h3>4.1 Cas Simplifié (Sans Contraintes de Bornes)</h3>
+
+        <p>Si on ignore les contraintes $\mathbf{w} \geq \mathbf{0}$ et $\mathbf{w} \leq \mathbf{w}_{\max}$ (ou si elles ne sont pas actives), le problème devient :</p>
+
+        <div class="formula">
+            $$
+            \begin{aligned}
+            \min_{\mathbf{w}} \quad & \mathbf{w}^T \boldsymbol{\Sigma} \mathbf{w} \\
+            \text{s.t.} \quad & \mathbf{w}^T \boldsymbol{\mu} = r_{\text{target}} \\
+            & \mathbf{1}^T \mathbf{w} = 1
+            \end{aligned}
+            $$
+        </div>
+
+        <div class="proof">
+            <div class="proof-title">Résolution Analytique :</div>
+            
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>Lagrangien simplifié :</strong>
+            </div>
+            $$
+            \mathcal{L} = \mathbf{w}^T \boldsymbol{\Sigma} \mathbf{w} - \lambda_1(\mathbf{w}^T \boldsymbol{\mu} - r_{\text{target}}) - \lambda_2(\mathbf{1}^T \mathbf{w} - 1)
+            $$
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>Condition de stationnarité :</strong>
+            </div>
+            $$
+            \frac{\partial \mathcal{L}}{\partial \mathbf{w}} = 2\boldsymbol{\Sigma}\mathbf{w} - \lambda_1 \boldsymbol{\mu} - \lambda_2 \mathbf{1} = \mathbf{0}
+            $$
+            <p><strong>Pourquoi cette équation ?</strong> À l'optimum, le gradient du Lagrangien doit être nul. Cela signifie que le gradient de la fonction objectif ($2\boldsymbol{\Sigma}\mathbf{w}$) doit être une combinaison linéaire des gradients des contraintes ($\boldsymbol{\mu}$ et $\mathbf{1}$). C'est l'idée fondamentale : à l'optimum, on ne peut plus améliorer la fonction objectif sans violer les contraintes.</p>
+            <p>Donc :</p>
+            $$
+            \mathbf{w} = \frac{1}{2}\boldsymbol{\Sigma}^{-1}(\lambda_1 \boldsymbol{\mu} + \lambda_2 \mathbf{1}) \tag{9}
+            $$
+            <p><strong>Intuition :</strong> La solution optimale est une combinaison linéaire de $\boldsymbol{\Sigma}^{-1}\boldsymbol{\mu}$ (qui favorise les actifs avec un bon ratio rendement/risque) et de $\boldsymbol{\Sigma}^{-1}\mathbf{1}$ (qui favorise les actifs avec une faible variance). Les multiplicateurs $\lambda_1$ et $\lambda_2$ ajustent l'équilibre entre ces deux objectifs.</p>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <strong>Détermination des multiplicateurs :</strong>
+            </div>
+            <p>En substituant (9) dans les contraintes (2) et (3) :</p>
+            $$
+            \begin{aligned}
+            \frac{1}{2}(\lambda_1 \boldsymbol{\mu} + \lambda_2 \mathbf{1})^T \boldsymbol{\Sigma}^{-1} \boldsymbol{\mu} &= r_{\text{target}} \\
+            \frac{1}{2}(\lambda_1 \boldsymbol{\mu} + \lambda_2 \mathbf{1})^T \boldsymbol{\Sigma}^{-1} \mathbf{1} &= 1
+            \end{aligned}
+            $$
+
+            <p><strong>Pourquoi ces constantes A, B, C ?</strong> Ces quantités apparaissent naturellement quand on substitue la solution dans les contraintes. Elles ont une interprétation financière importante :</p>
+            <ul>
+                <li><strong>$A = \boldsymbol{\mu}^T \boldsymbol{\Sigma}^{-1} \boldsymbol{\mu}$ :</strong> Mesure le "rendement ajusté du risque" global. Plus A est grand, plus on peut obtenir de rendement pour un niveau de risque donné.</li>
+                <li><strong>$B = \boldsymbol{\mu}^T \boldsymbol{\Sigma}^{-1} \mathbf{1}$ :</strong> Mesure la corrélation entre rendement et "inverse du risque". C'est un indicateur de la qualité globale des actifs.</li>
+                <li><strong>$C = \mathbf{1}^T \boldsymbol{\Sigma}^{-1} \mathbf{1}$ :</strong> Mesure la "somme des inverses des risques". Plus C est grand, plus on peut diversifier efficacement.</li>
+            </ul>
+            <p>Définissons :</p>
+            $$
+            \begin{aligned}
+            A &= \boldsymbol{\mu}^T \boldsymbol{\Sigma}^{-1} \boldsymbol{\mu} \\
+            B &= \boldsymbol{\mu}^T \boldsymbol{\Sigma}^{-1} \mathbf{1} = \mathbf{1}^T \boldsymbol{\Sigma}^{-1} \boldsymbol{\mu} \\
+            C &= \mathbf{1}^T \boldsymbol{\Sigma}^{-1} \mathbf{1}
+            \end{aligned}
+            $$
+
+            <p>Le système devient :</p>
+            $$
+            \begin{bmatrix}
+            A & B \\
+            B & C
+            \end{bmatrix}
+            \begin{bmatrix}
+            \lambda_1 \\
+            \lambda_2
+            \end{bmatrix}
+            =
+            \begin{bmatrix}
+            2r_{\text{target}} \\
+            2
+            \end{bmatrix}
+            $$
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <strong>Solution :</strong>
+            </div>
+            $$
+            \begin{bmatrix}
+            \lambda_1 \\
+            \lambda_2
+            \end{bmatrix}
+            =
+            \frac{1}{AC - B^2}
+            \begin{bmatrix}
+            C & -B \\
+            -B & A
+            \end{bmatrix}
+            \begin{bmatrix}
+            2r_{\text{target}} \\
+            2
+            \end{bmatrix}
+            $$
+
+            <p>En développant :</p>
+            $$
+            \begin{aligned}
+            \lambda_1 &= \frac{2(C r_{\text{target}} - B)}{AC - B^2} \\
+            \lambda_2 &= \frac{2(A - B r_{\text{target}})}{AC - B^2}
+            \end{aligned}
+            $$
+
+            <div class="step">
+                <span class="step-number">5</span>
+                <strong>Solution finale :</strong>
+            </div>
+            $$
+            \mathbf{w}^* = \frac{1}{AC - B^2} \left[ (C r_{\text{target}} - B) \boldsymbol{\Sigma}^{-1} \boldsymbol{\mu} + (A - B r_{\text{target}}) \boldsymbol{\Sigma}^{-1} \mathbf{1} \right]
+            $$
+        </div>
+
+        <h3>4.2 Cas Général (Avec Contraintes de Bornes)</h3>
+
+        <p>Quand les contraintes $\mathbf{w} \geq \mathbf{0}$ et $\mathbf{w} \leq \mathbf{w}_{\max}$ sont présentes, le problème ne peut généralement pas être résolu analytiquement. On utilise des algorithmes numériques :</p>
+
+        <div class="note">
+            <div class="note-title">Algorithmes de Résolution :</div>
+            <ul>
+                <li><strong>Méthode du point intérieur :</strong> Pour problèmes convexes de grande taille</li>
+                <li><strong>SLSQP (Sequential Least Squares Programming) :</strong> Méthode séquentielle efficace</li>
+                <li><strong>CVXPY / CVXOPT :</strong> Solveurs spécialisés pour programmation convexe</li>
+                <li><strong>Méthode active-set :</strong> Identifie les contraintes actives</li>
+            </ul>
+        </div>
+
+        <h2>📊 5. Frontière Efficiente</h2>
+
+        <div class="note" style="background: #fce4ec; border-left-color: #e91e63;">
+            <div class="note-title" style="color: #c2185b;">💡 Pourquoi la frontière efficiente est fondamentale ?</div>
+            <p><strong>Le dilemme rendement-risque :</strong> En finance, il y a un compromis fondamental : plus de rendement implique généralement plus de risque. La question est : <strong>quel est le meilleur compromis possible ?</strong></p>
+            
+            <p><strong>La frontière efficiente répond à cette question :</strong> Elle montre tous les portefeuilles qui sont <strong>"efficients"</strong>, c'est-à-dire :</p>
+            <ul>
+                <li>Pour un niveau de risque donné, ils ont le <strong>rendement maximum</strong> possible</li>
+                <li>Pour un niveau de rendement donné, ils ont le <strong>risque minimum</strong> possible</li>
+            </ul>
+            
+            <p><strong>Pourquoi "efficient" ?</strong> Tout portefeuille qui n'est <strong>pas</strong> sur la frontière efficiente est "inefficient" : on peut trouver un autre portefeuille avec le même risque mais plus de rendement, ou le même rendement mais moins de risque. Un investisseur rationnel ne devrait jamais choisir un portefeuille inefficient.</p>
+            
+            <p><strong>La forme de la frontière :</strong> La frontière efficiente est généralement une <strong>courbe hyperbolique</strong> dans le plan (risque, rendement). Elle commence au "portefeuille de variance minimale" (le point le plus à gauche) et monte vers la droite (plus de rendement = plus de risque).</p>
+            
+            <p><strong>Lien avec la diversification :</strong> La courbure de la frontière efficiente montre les bénéfices de la diversification. Plus la courbe est "courbée vers le haut", plus la diversification est efficace (on peut réduire le risque sans sacrifier trop de rendement).</p>
+            
+            <p><strong>Utilisation pratique :</strong> Un gérant de portefeuille peut :</p>
+            <ul>
+                <li>Choisir un point sur la frontière selon son aversion au risque</li>
+                <li>Comparer différents portefeuilles : ceux sur la frontière sont meilleurs</li>
+                <li>Visualiser l'impact de nouvelles contraintes (la frontière se déplace)</li>
+            </ul>
+        </div>
+
+        <div class="definition">
+            <div class="definition-title">Définition 5.1 : Frontière Efficiente</div>
+            <p>La frontière efficiente est l'ensemble des portefeuilles qui minimisent la variance pour chaque niveau de rendement cible, ou inversement, maximisent le rendement pour chaque niveau de variance.</p>
+        </div>
+
+        <div class="proof">
+            <div class="proof-title">Construction de la Frontière Efficiente :</div>
+            
+            <p>Pour construire la frontière efficiente, on résout le problème pour différentes valeurs de $r_{\text{target}}$ :</p>
+            $$
+            r_{\text{target}} \in [r_{\min}, r_{\max}]
+            $$
+            <p>où :</p>
+            $$
+            \begin{aligned}
+            r_{\min} &= \min_{\mathbf{w}: \mathbf{1}^T \mathbf{w} = 1} \mathbf{w}^T \boldsymbol{\mu} \\
+            r_{\max} &= \max_{\mathbf{w}: \mathbf{1}^T \mathbf{w} = 1} \mathbf{w}^T \boldsymbol{\mu}
+            \end{aligned}
+            $$
+
+            <p>Pour chaque $r_{\text{target}}$, on obtient un portefeuille optimal $\mathbf{w}^*(r_{\text{target}})$ avec variance $\sigma^2(r_{\text{target}}) = \mathbf{w}^*(r_{\text{target}})^T \boldsymbol{\Sigma} \mathbf{w}^*(r_{\text{target}})$.</p>
+
+            <p>La frontière efficiente est la courbe $(\sigma(r_{\text{target}}), r_{\text{target}})$ dans le plan risque-rendement.</p>
+        </div>
+
+        <h2>✅ 6. Propriétés de la Solution</h2>
+
+        <div class="note" style="background: #e0f2f1; border-left-color: #009688;">
+            <div class="note-title" style="color: #004d40;">💡 Pourquoi l'unicité est importante ?</div>
+            <p><strong>Le problème de la multiplicité :</strong> Si plusieurs solutions existaient, on ne saurait pas laquelle choisir, et les algorithmes pourraient converger vers différentes solutions selon les conditions initiales. Cela rendrait l'optimisation imprévisible.</p>
+            
+            <p><strong>L'unicité garantit :</strong></p>
+            <ul>
+                <li>La solution trouvée est la <strong>vraie</strong> solution optimale (pas juste une parmi d'autres)</li>
+                <li>Les algorithmes convergent toujours vers la <strong>même</strong> solution</li>
+                <li>On peut comparer différents portefeuilles de manière fiable</li>
+            </ul>
+            
+            <p><strong>Quand l'unicité est garantie ?</strong> Si $\boldsymbol{\Sigma}$ est <strong>définie positive</strong> (et pas juste semi-définie positive), alors la fonction objectif est <strong>strictement convexe</strong>, ce qui garantit l'unicité. En pratique, si deux actifs sont parfaitement corrélés, $\boldsymbol{\Sigma}$ peut être singulière (non inversible), et on doit appliquer une régularisation.</p>
+        </div>
+
+        <div class="theorem">
+            <div class="theorem-title">Théorème 6.1 : Unicité de la Solution</div>
+            <p>Si $\boldsymbol{\Sigma}$ est <strong>définie positive</strong>, alors la solution $\mathbf{w}^*$ est <strong>unique</strong>.</p>
+        </div>
+
+        <div class="proof">
+            <div class="proof-title">Preuve :</div>
+            <p>Si $\boldsymbol{\Sigma}$ est définie positive, alors la fonction objectif $f(\mathbf{w}) = \mathbf{w}^T \boldsymbol{\Sigma} \mathbf{w}$ est <strong>strictement convexe</strong>.</p>
+            <p>Pour une fonction strictement convexe sur un ensemble convexe, le minimum global est <strong>unique</strong>.</p>
+        </div>
+
+        <div class="theorem">
+            <div class="theorem-title">Théorème 6.2 : Sensibilité aux Paramètres</div>
+            <p>La solution est continue et différentiable par rapport aux paramètres $\boldsymbol{\mu}$ et $\boldsymbol{\Sigma}$.</p>
+        </div>
+
+        <h2>🎯 7. Implémentation Numérique</h2>
+
+        <div class="note" style="background: #fff3e0; border-left-color: #ff9800;">
+            <div class="note-title" style="color: #e65100;">💡 Pourquoi la régularisation est nécessaire ?</div>
+            <p><strong>Le problème de la singularité :</strong> Si deux actifs sont parfaitement corrélés (ou presque), la matrice $\boldsymbol{\Sigma}$ peut être <strong>singulière</strong> (non inversible). Cela arrive quand :</p>
+            <ul>
+                <li>Deux actifs ont des rendements identiques (corrélation = 1)</li>
+                <li>On a plus d'actifs que d'observations historiques</li>
+                <li>Les données sont colinéaires</li>
+            </ul>
+            
+            <p><strong>La solution : régularisation Ridge</strong> On ajoute $\lambda I$ à la matrice de covariance : $\boldsymbol{\Sigma}_{\text{reg}} = \boldsymbol{\Sigma} + \lambda I$. Cela :</p>
+            <ul>
+                <li>Rend la matrice <strong>définie positive</strong> (garantit l'inversibilité)</li>
+                <li>Réduit le bruit dans l'estimation (shrinkage vers l'identité)</li>
+                <li>Stabilise la solution numérique</li>
+            </ul>
+            
+            <p><strong>Le paramètre $\lambda$ :</strong> Il contrôle le compromis entre fidélité aux données ($\lambda$ petit) et stabilité ($\lambda$ grand). En pratique, on choisit $\lambda$ petit (ex: 0.01) pour ne pas trop modifier la structure de covariance.</p>
+        </div>
+
+        <div class="note">
+            <div class="note-title">Algorithme Pseudo-code :</div>
+            <pre style="background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto;">
+<code>Fonction optimize_portfolio(μ, Σ, r_target, w_max):
+    // 1. Vérifier que Σ est définie positive
+    Si det(Σ) ≤ 0:
+        Appliquer régularisation: Σ = Σ + λI
+    
+    // 2. Définir les contraintes
+    Contraintes = [
+        w^T μ = r_target,
+        1^T w = 1,
+        w ≥ 0,
+        w ≤ w_max
+    ]
+    
+    // 3. Résoudre le problème QP
+    w* = solve_qp(
+        objectif: min w^T Σ w,
+        contraintes: Contraintes
+    )
+    
+    // 4. Calculer la variance optimale
+    σ² = w*^T Σ w*
+    
+    Retourner (w*, σ²)
+</code></pre>
+        </div>
+
+        <h2>📈 8. Exemple Numérique</h2>
+
+        <div class="note" style="background: #e8eaf6; border-left-color: #3f51b5;">
+            <div class="note-title" style="color: #1a237e;">💡 Interprétation de l'exemple :</div>
+            <p><strong>Les données :</strong> On a 3 actifs avec des rendements espérés de 10%, 12% et 8%. La matrice de covariance montre que :</p>
+            <ul>
+                <li>L'actif 1 a une variance de 0.04 (écart-type 20%)</li>
+                <li>L'actif 2 a une variance de 0.05 (écart-type 22.4%) - le plus risqué mais aussi le plus rentable</li>
+                <li>L'actif 3 a une variance de 0.03 (écart-type 17.3%) - le moins risqué mais aussi le moins rentable</li>
+                <li>Les corrélations sont positives mais modérées (pas de corrélation parfaite)</li>
+            </ul>
+            
+            <p><strong>La solution optimale :</strong> Pour un rendement cible de 10%, l'allocation optimale est :</p>
+            <ul>
+                <li>40% dans l'actif 1 (rendement 10%, risque modéré)</li>
+                <li>50% dans l'actif 2 (rendement 12%, risque élevé mais diversifié)</li>
+                <li>10% dans l'actif 3 (rendement 8%, risque faible pour stabiliser)</li>
+            </ul>
+            
+            <p><strong>Pourquoi cette allocation ?</strong> L'optimiseur trouve le meilleur compromis : il favorise l'actif 2 (le plus rentable) mais le diversifie avec les autres actifs pour réduire le risque total. Le résultat est un portefeuille avec un rendement de 10% et un risque (écart-type) de 15.8%, ce qui est meilleur que n'importe quel portefeuille non optimisé avec le même rendement.</p>
+        </div>
+
+        <div class="formula">
+            <p><strong>Exemple avec 3 actifs :</strong></p>
+            $$
+            \boldsymbol{\mu} = \begin{bmatrix} 0.10 \\ 0.12 \\ 0.08 \end{bmatrix}, \quad
+            \boldsymbol{\Sigma} = \begin{bmatrix}
+            0.04 & 0.01 & 0.005 \\
+            0.01 & 0.05 & 0.01 \\
+            0.005 & 0.01 & 0.03
+            \end{bmatrix}, \quad
+            r_{\text{target}} = 0.10
+            $$
+        </div>
+
+        <div class="proof">
+            <div class="proof-title">Calcul :</div>
+            <p>En utilisant la formule analytique (cas sans contraintes de bornes) :</p>
+            $$
+            \begin{aligned}
+            A &= 0.25, \quad B = 0.20, \quad C = 0.18 \\
+            AC - B^2 &= 0.005 \\
+            \lambda_1 &= 0.4, \quad \lambda_2 = 0.2 \\
+            \mathbf{w}^* &= \begin{bmatrix} 0.40 \\ 0.50 \\ 0.10 \end{bmatrix}
+            \end{aligned}
+            $$
+            <p>Variance optimale : $\sigma^2 = 0.025$ (écart-type : $\sigma = 0.158$)</p>
+        </div>
+
+        <hr style="margin: 60px 0; border: none; border-top: 3px solid #667eea;">
+
+        <h1 style="color: #667eea; text-align: center; margin-top: 60px; margin-bottom: 30px; font-size: 2.2em; border-bottom: 3px solid #667eea; padding-bottom: 15px;">
+            📚 CHAPITRES AVANCÉS
+        </h1>
+
+        <h2>🎯 CHAPITRE 9 : Conditional Value at Risk (CVaR)</h2>
+
+        <div class="note" style="background: #fff3e0; border-left-color: #ff9800;">
+            <div class="note-title" style="color: #e65100;">💡 Pourquoi le CVaR au lieu de la variance ?</div>
+            <p><strong>Le problème de la variance :</strong> La variance mesure la <strong>volatilité globale</strong> des rendements, mais elle traite de la même manière les gains et les pertes. Or, en finance, on se préoccupe surtout des <strong>pertes extrêmes</strong> (le "tail risk").</p>
+            
+            <p><strong>Exemple concret :</strong> Un portefeuille avec des rendements très variables mais toujours positifs a une grande variance, mais ne présente pas vraiment de risque de perte. Inversement, un portefeuille avec des rendements stables mais occasionnellement très négatifs peut avoir une variance modérée mais un risque réel élevé.</p>
+            
+            <p><strong>Le CVaR répond à cette limitation :</strong> Le Conditional Value at Risk (aussi appelé Expected Shortfall) se concentre spécifiquement sur les <strong>pertes extrêmes</strong> - les pires scénarios. Il répond à la question : "Si on subit une perte importante, quelle est la perte moyenne dans ces cas-là ?"</p>
+            
+            <p><strong>Pourquoi c'est mieux pour le risk management ?</strong></p>
+            <ul>
+                <li><strong>Focus sur les pertes :</strong> Le CVaR ne regarde que la queue gauche de la distribution (les pertes)</li>
+                <li><strong>Mesure cohérente :</strong> Le CVaR est une mesure de risque "cohérente" (satisfait des propriétés mathématiques importantes)</li>
+                <li><strong>Réglementation :</strong> De nombreux régulateurs (Bâle III, Solvabilité II) utilisent le CVaR pour évaluer le risque</li>
+                <li><strong>Protection contre les crises :</strong> Le CVaR capture mieux le risque de crise que la variance</li>
+            </ul>
+            
+            <p><strong>Le lien avec la VaR :</strong> La Value at Risk (VaR) mesure la perte maximale avec une probabilité donnée (ex: "avec 95% de confiance, on ne perdra pas plus de 5%"). Le CVaR va plus loin : "Si on dépasse la VaR, quelle est la perte moyenne ?" C'est plus conservateur et informatif.</p>
+        </div>
+
+        <div class="definition">
+            <div class="definition-title">Définition 9.1 : Value at Risk (VaR)</div>
+            <p>La Value at Risk au niveau de confiance $\alpha$ (ex: $\alpha = 0.95$ pour 95%) est le quantile $(1-\alpha)$ de la distribution des rendements :</p>
+            $$
+            \text{VaR}_\alpha = -F^{-1}(1-\alpha)
+            $$
+            <p>où $F$ est la fonction de répartition des rendements. En d'autres termes, avec probabilité $\alpha$, les pertes ne dépasseront pas $\text{VaR}_\alpha$.</p>
+        </div>
+
+        <div class="definition">
+            <div class="definition-title">Définition 9.2 : Conditional Value at Risk (CVaR)</div>
+            <p>Le Conditional Value at Risk (ou Expected Shortfall) est l'espérance conditionnelle des pertes sachant qu'on dépasse la VaR :</p>
+            $$
+            \text{CVaR}_\alpha = \mathbb{E}[R | R \leq -\text{VaR}_\alpha] = \frac{1}{1-\alpha} \int_{-\infty}^{-\text{VaR}_\alpha} r \cdot f(r) \, dr
+            $$
+            <p>où $f$ est la densité de probabilité des rendements. Le CVaR mesure donc la <strong>perte moyenne dans les pires cas</strong> (les $(1-\alpha) \times 100\%$ pires scénarios).</p>
+        </div>
+
+        <div class="note" style="background: #e8f5e9; border-left-color: #4caf50;">
+            <div class="note-title" style="color: #2e7d32;">🔗 Interprétation intuitive du CVaR :</div>
+            <p>Si $\alpha = 0.95$ (95% de confiance) :</p>
+            <ul>
+                <li><strong>VaR₀.₉₅ :</strong> "Dans 95% des cas, on ne perdra pas plus de X%"</li>
+                <li><strong>CVaR₀.₉₅ :</strong> "Dans les 5% pires cas, la perte moyenne sera de Y%"</li>
+            </ul>
+            <p><strong>Exemple concret :</strong> Si CVaR₀.₉₅ = 10%, cela signifie que dans les 5% pires scénarios (crises, krachs), on perdra en moyenne 10% du portefeuille. C'est beaucoup plus informatif que la VaR qui ne dit que "on ne perdra pas plus de X% dans 95% des cas".</p>
+        </div>
+
+        <h3>9.1 Formulation du Problème d'Optimisation sous CVaR</h3>
+
+        <div class="formula">
+            <p><strong>Problème d'optimisation :</strong></p>
+            $$
+            \begin{aligned}
+            \min_{\mathbf{w}} \quad & \text{CVaR}_\alpha(\mathbf{w}) \\
+            \text{s.t.} \quad & \mathbf{w}^T \boldsymbol{\mu} = r_{\text{target}} \\
+            & \mathbf{1}^T \mathbf{w} = 1 \\
+            & \mathbf{w} \geq \mathbf{0} \\
+            & \text{CVaR}_\alpha(\mathbf{w}) \leq \text{CVaR}_{\max}
+            \end{aligned}
+            $$
+        </div>
+
+        <div class="proof">
+            <div class="proof-title">Formulation Linéaire du CVaR (Rockafellar & Uryasev, 2002) :</div>
+            
+            <p><strong>L'idée clé :</strong> Le CVaR peut être reformulé comme un problème d'optimisation linéaire en introduisant des variables auxiliaires. C'est crucial car cela permet d'utiliser des solveurs efficaces.</p>
+            
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>Formulation avec variable auxiliaire :</strong>
+            </div>
+            <p>On introduit une variable $t$ (qui représente la VaR) et des variables $u_i$ pour chaque scénario $i$ :</p>
+            $$
+            \text{CVaR}_\alpha = \min_{t} \left\{ t + \frac{1}{1-\alpha} \mathbb{E}[\max(0, -R - t)] \right\}
+            $$
+            <p><strong>Pourquoi cette formulation ?</strong> Cette reformulation transforme le problème non-linéaire (basé sur des quantiles) en un problème linéaire, beaucoup plus facile à résoudre.</p>
+            
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>Formulation discrète (avec scénarios) :</strong>
+            </div>
+            <p>En pratique, on utilise des scénarios historiques ou simulés. Si on a $S$ scénarios avec rendements $r_s$ et probabilités $p_s$ :</p>
+            $$
+            \begin{aligned}
+            \min_{\mathbf{w}, t, \mathbf{u}} \quad & t + \frac{1}{1-\alpha} \sum_{s=1}^{S} p_s u_s \\
+            \text{s.t.} \quad & u_s \geq -\mathbf{w}^T \mathbf{r}_s - t, \quad \forall s \\
+            & u_s \geq 0, \quad \forall s \\
+            & \mathbf{w}^T \boldsymbol{\mu} = r_{\text{target}} \\
+            & \mathbf{1}^T \mathbf{w} = 1 \\
+            & \mathbf{w} \geq \mathbf{0}
+            \end{aligned}
+            $$
+            <p><strong>Intuition :</strong> Les variables $u_s$ capturent les "excès de perte" au-delà du seuil $t$ (la VaR). On minimise la somme pondérée de ces excès, ce qui donne le CVaR.</p>
+        </div>
+
+        <div class="note" style="background: #e1f5fe; border-left-color: #0288d1;">
+            <div class="note-title" style="color: #01579b;">💡 Pourquoi cette formulation est puissante ?</div>
+            <p><strong>Avantages de la formulation linéaire :</strong></p>
+            <ul>
+                <li><strong>Efficacité :</strong> Les solveurs linéaires sont très rapides (simplex, point intérieur)</li>
+                <li><strong>Scalabilité :</strong> On peut traiter des milliers de scénarios facilement</li>
+                <li><strong>Robustesse :</strong> Pas de problèmes de convergence comme avec les méthodes non-linéaires</li>
+                <li><strong>Flexibilité :</strong> On peut ajouter facilement d'autres contraintes linéaires</li>
+            </ul>
+            
+            <p><strong>Le lien avec la variance :</strong> La variance pénalise toutes les déviations (positives et négatives). Le CVaR ne pénalise que les pertes extrêmes. C'est pourquoi l'optimisation CVaR peut donner des portefeuilles différents (et souvent meilleurs pour le risk management) que l'optimisation variance.</p>
+        </div>
+
+        <h3>9.2 Comparaison Variance vs CVaR</h3>
+
+        <div class="theorem">
+            <div class="theorem-title">Théorème 9.1 : Propriétés du CVaR</div>
+            <p>Le CVaR est une <strong>mesure de risque cohérente</strong>, c'est-à-dire qu'il satisfait :</p>
+            <ol>
+                <li><strong>Monotonie :</strong> Si $R_1 \geq R_2$ (presque sûrement), alors $\text{CVaR}_\alpha(R_1) \leq \text{CVaR}_\alpha(R_2)$</li>
+                <li><strong>Sous-additivité :</strong> $\text{CVaR}_\alpha(R_1 + R_2) \leq \text{CVaR}_\alpha(R_1) + \text{CVaR}_\alpha(R_2)$</li>
+                <li><strong>Homogénéité positive :</strong> $\text{CVaR}_\alpha(\lambda R) = \lambda \text{CVaR}_\alpha(R)$ pour $\lambda \geq 0$</li>
+                <li><strong>Invariance par translation :</strong> $\text{CVaR}_\alpha(R + c) = \text{CVaR}_\alpha(R) - c$</li>
+            </ol>
+        </div>
+
+        <div class="note" style="background: #f3e5f5; border-left-color: #9c27b0;">
+            <div class="note-title" style="color: #6a1b9a;">💡 Pourquoi ces propriétés sont importantes ?</div>
+            <p><strong>La sous-additivité (propriété 2) :</strong> C'est la propriété de <strong>diversification</strong> ! Elle dit que le risque d'un portefeuille combiné est inférieur ou égal à la somme des risques individuels. C'est exactement ce qu'on veut : la diversification réduit le risque.</p>
+            
+            <p><strong>Comparaison avec la variance :</strong> La variance satisfait aussi la sous-additivité (grâce aux covariances), mais le CVaR le fait de manière plus directe et intuitive pour les pertes extrêmes.</p>
+            
+            <p><strong>Impact pratique :</strong> Ces propriétés garantissent que l'optimisation CVaR donnera des résultats cohérents et interprétables, ce qui est crucial pour le risk management institutionnel.</p>
+        </div>
+
+        <hr style="margin: 40px 0; border: none; border-top: 2px solid #ddd;">
+
+        <h2>🛡️ CHAPITRE 10 : Optimisation Robuste</h2>
+
+        <div class="note" style="background: #fff3e0; border-left-color: #ff9800;">
+            <div class="note-title" style="color: #e65100;">💡 Pourquoi l'optimisation robuste ?</div>
+            <p><strong>Le problème fondamental :</strong> En optimisation de portefeuille classique, on suppose que les paramètres ($\boldsymbol{\mu}$ et $\boldsymbol{\Sigma}$) sont <strong>connus avec certitude</strong>. En réalité, ces paramètres sont <strong>estimés</strong> à partir de données historiques et sont donc <strong>incertains</strong>.</p>
+            
+            <p><strong>Le problème de l'estimation :</strong></p>
+            <ul>
+                <li>Les rendements futurs peuvent différer des rendements historiques</li>
+                <li>Les corrélations changent dans le temps (surtout en période de crise)</li>
+                <li>Les estimations sont bruitées (erreur d'échantillonnage)</li>
+                <li>Un portefeuille optimal avec des paramètres estimés peut être très mauvais avec les vrais paramètres</li>
+            </ul>
+            
+            <p><strong>Exemple concret :</strong> Si on optimise avec une estimation de $\boldsymbol{\Sigma}$ qui sous-estime certaines corrélations, le portefeuille optimal peut être trop concentré et très risqué si les vraies corrélations sont plus élevées.</p>
+            
+            <p><strong>La solution : optimisation robuste</strong> Au lieu d'optimiser avec des paramètres fixes, on optimise en supposant que les paramètres peuvent varier dans un <strong>ensemble d'incertitude</strong>. On cherche le portefeuille qui est optimal même dans le pire cas.</p>
+            
+            <p><strong>Philosophie :</strong> "Mieux vaut un portefeuille qui fonctionne bien dans tous les scénarios qu'un portefeuille optimal dans un scénario mais catastrophique dans d'autres."</p>
+        </div>
+
+        <div class="definition">
+            <div class="definition-title">Définition 10.1 : Optimisation Robuste (Min-Max)</div>
+            <p>L'optimisation robuste cherche à minimiser le risque dans le pire cas possible des paramètres :</p>
+            $$
+            \min_{\mathbf{w}} \max_{\boldsymbol{\Sigma} \in \mathcal{U}} \mathbf{w}^T \boldsymbol{\Sigma} \mathbf{w}
+            $$
+            <p>où $\mathcal{U}$ est l'<strong>ensemble d'incertitude</strong> sur la matrice de covariance. On cherche donc le portefeuille qui minimise la variance <strong>même si</strong> la vraie covariance est la pire possible dans l'ensemble $\mathcal{U}$.</p>
+        </div>
+
+        <div class="note" style="background: #e8f5e9; border-left-color: #4caf50;">
+            <div class="note-title" style="color: #2e7d32;">🔗 Interprétation intuitive :</div>
+            <p><strong>Optimisation classique :</strong> "Trouve le portefeuille optimal en supposant que $\boldsymbol{\Sigma}$ est exactement ce qu'on a estimé."</p>
+            <p><strong>Optimisation robuste :</strong> "Trouve le portefeuille qui fonctionne le mieux même si $\boldsymbol{\Sigma}$ est différente de ce qu'on a estimé (dans certaines limites)."</p>
+            <p>C'est une approche <strong>conservatrice</strong> mais <strong>robuste</strong> aux erreurs d'estimation.</p>
+        </div>
+
+        <h3>10.1 Ensemble d'Incertitude Ellipsoïdal</h3>
+
+        <div class="formula">
+            <p><strong>Ensemble d'incertitude ellipsoïdal :</strong></p>
+            $$
+            \mathcal{U} = \left\{ \boldsymbol{\Sigma} : \|\boldsymbol{\Sigma} - \boldsymbol{\Sigma}_0\|_F \leq \rho \right\}
+            $$
+            <p>où $\boldsymbol{\Sigma}_0$ est l'estimation de base, $\|\cdot\|_F$ est la norme de Frobenius, et $\rho$ est le <strong>rayon d'incertitude</strong>.</p>
+        </div>
+
+        <div class="proof">
+            <div class="proof-title">Résolution du Problème Min-Max :</div>
+            
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>Formulation du problème :</strong>
+            </div>
+            $$
+            \begin{aligned}
+            \min_{\mathbf{w}} \quad & \max_{\boldsymbol{\Sigma} \in \mathcal{U}} \mathbf{w}^T \boldsymbol{\Sigma} \mathbf{w} \\
+            \text{s.t.} \quad & \mathbf{w}^T \boldsymbol{\mu} = r_{\text{target}} \\
+            & \mathbf{1}^T \mathbf{w} = 1 \\
+            & \mathbf{w} \geq \mathbf{0}
+            \end{aligned}
+            $$
+            
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>Résolution du problème interne (max) :</strong>
+            </div>
+            <p>Pour un $\mathbf{w}$ fixé, on cherche $\boldsymbol{\Sigma}^*$ qui maximise $\mathbf{w}^T \boldsymbol{\Sigma} \mathbf{w}$ dans $\mathcal{U}$.</p>
+            <p>Par la dualité, on peut montrer que :</p>
+            $$
+            \max_{\boldsymbol{\Sigma} \in \mathcal{U}} \mathbf{w}^T \boldsymbol{\Sigma} \mathbf{w} = \mathbf{w}^T \boldsymbol{\Sigma}_0 \mathbf{w} + \rho \|\mathbf{w}\|_2^2
+            $$
+            <p><strong>Intuition :</strong> Le pire cas est atteint quand on ajoute le maximum d'incertitude ($\rho$) pondéré par la norme du portefeuille.</p>
+            
+            <div class="step">
+                <span class="step-number">3</span>
+                <strong>Problème externe (min) :</strong>
+            </div>
+            <p>Le problème devient :</p>
+            $$
+            \begin{aligned}
+            \min_{\mathbf{w}} \quad & \mathbf{w}^T \boldsymbol{\Sigma}_0 \mathbf{w} + \rho \|\mathbf{w}\|_2^2 \\
+            \text{s.t.} \quad & \mathbf{w}^T \boldsymbol{\mu} = r_{\text{target}} \\
+            & \mathbf{1}^T \mathbf{w} = 1 \\
+            & \mathbf{w} \geq \mathbf{0}
+            \end{aligned}
+            $$
+            <p><strong>Interprétation :</strong> On minimise la variance estimée <strong>plus</strong> un terme de pénalisation qui augmente avec la concentration du portefeuille. Cela favorise naturellement la <strong>diversification</strong> !</p>
+        </div>
+
+        <div class="note" style="background: #e1f5fe; border-left-color: #0288d1;">
+            <div class="note-title" style="color: #01579b;">💡 Pourquoi cette solution favorise la diversification ?</div>
+            <p><strong>Le terme $\rho \|\mathbf{w}\|_2^2$ :</strong> Ce terme est grand quand le portefeuille est concentré (peu d'actifs avec des poids élevés) et petit quand il est diversifié (beaucoup d'actifs avec des poids modérés).</p>
+            
+            <p><strong>Exemple :</strong> Si on a 10% dans chaque actif (10 actifs), $\|\mathbf{w}\|_2^2 = 0.1$. Si on a 100% dans un actif, $\|\mathbf{w}\|_2^2 = 1$. Le terme de pénalisation est donc 10 fois plus grand pour le portefeuille concentré.</p>
+            
+            <p><strong>Résultat :</strong> L'optimisation robuste produit naturellement des portefeuilles plus diversifiés, ce qui est exactement ce qu'on veut pour réduire le risque d'estimation !</p>
+        </div>
+
+        <h3>10.2 Choix du Rayon d'Incertitude $\rho$</h3>
+
+        <div class="note" style="background: #f3e5f5; border-left-color: #9c27b0;">
+            <div class="note-title" style="color: #6a1b9a;">💡 Comment choisir $\rho$ ?</div>
+            <p><strong>Le compromis :</strong></p>
+            <ul>
+                <li><strong>$\rho$ petit :</strong> On fait confiance à notre estimation. Le portefeuille est proche de l'optimisation classique, mais moins robuste.</li>
+                <li><strong>$\rho$ grand :</strong> On est très conservateur. Le portefeuille est très diversifié et robuste, mais peut être sous-optimal si notre estimation est bonne.</li>
+            </ul>
+            
+            <p><strong>Méthodes de choix :</strong></p>
+            <ol>
+                <li><strong>Bootstrap :</strong> Estimer $\rho$ à partir de la variabilité des estimations sur des échantillons bootstrap</li>
+                <li><strong>Validation croisée :</strong> Choisir $\rho$ qui maximise la performance hors échantillon</li>
+                <li><strong>Règle empirique :</strong> $\rho = 0.1 \times \|\boldsymbol{\Sigma}_0\|_F$ (10% d'incertitude)</li>
+            </ol>
+        </div>
+
+        <hr style="margin: 40px 0; border: none; border-top: 2px solid #ddd;">
+
+        <h2>📊 CHAPITRE 11 : Estimation Robuste de Covariance (Ledoit-Wolf)</h2>
+
+        <div class="note" style="background: #fff3e0; border-left-color: #ff9800;">
+            <div class="note-title" style="color: #e65100;">💡 Pourquoi améliorer l'estimation de covariance ?</div>
+            <p><strong>Le problème de l'estimation naïve :</strong> L'estimateur classique de covariance est :</p>
+            $$
+            \hat{\boldsymbol{\Sigma}} = \frac{1}{T-1} \sum_{t=1}^{T} (\mathbf{r}_t - \bar{\mathbf{r}})(\mathbf{r}_t - \bar{\mathbf{r}})^T
+            $$
+            <p>où $T$ est le nombre d'observations et $\mathbf{r}_t$ sont les rendements.</p>
+            
+            <p><strong>Problèmes de cet estimateur :</strong></p>
+            <ul>
+                <li><strong>Bruit d'estimation :</strong> Avec peu d'observations ($T$ petit) ou beaucoup d'actifs ($n$ grand), l'estimation est très bruitée</li>
+                <li><strong>Instabilité :</strong> De petites variations dans les données peuvent causer de grandes variations dans $\hat{\boldsymbol{\Sigma}}$</li>
+                <li><strong>Singularité :</strong> Si $T < n$, la matrice est singulière (non inversible), ce qui pose problème pour l'optimisation</li>
+                <li><strong>Mauvaise performance :</strong> Les portefeuilles optimisés avec $\hat{\boldsymbol{\Sigma}}$ bruitée ont souvent une mauvaise performance hors échantillon</li>
+            </ul>
+            
+            <p><strong>Exemple concret :</strong> Si on a 100 actifs mais seulement 50 observations mensuelles, on estime $100 \times 101 / 2 = 5050$ paramètres (covariances) avec seulement 50 observations. C'est beaucoup trop !</p>
+            
+            <p><strong>La solution : Shrinkage de Ledoit-Wolf</strong> On "rétrécit" l'estimation vers une cible plus stable (comme la matrice identité), réduisant ainsi le bruit tout en préservant la structure importante.</p>
+        </div>
+
+        <div class="definition">
+            <div class="definition-title">Définition 11.1 : Shrinkage de Ledoit-Wolf</div>
+            <p>L'estimateur de Ledoit-Wolf combine l'estimation de l'échantillon avec une cible (généralement la matrice identité) :</p>
+            $$
+            \hat{\boldsymbol{\Sigma}}_{\text{LW}} = \alpha \hat{\boldsymbol{\Sigma}}_{\text{sample}} + (1-\alpha) \hat{\boldsymbol{\Sigma}}_{\text{target}}
+            $$
+            <p>où $\alpha \in [0,1]$ est le <strong>coefficient de shrinkage</strong>, choisi pour minimiser l'erreur quadratique moyenne.</p>
+        </div>
+
+        <div class="note" style="background: #e8f5e9; border-left-color: #4caf50;">
+            <div class="note-title" style="color: #2e7d32;">🔗 Intuition du Shrinkage :</div>
+            <p><strong>L'idée :</strong> Au lieu d'utiliser directement l'estimation bruitée $\hat{\boldsymbol{\Sigma}}_{\text{sample}}$, on fait une moyenne pondérée avec une cible plus stable $\hat{\boldsymbol{\Sigma}}_{\text{target}}$ (souvent $I$ ou une matrice diagonale).</p>
+            
+            <p><strong>Pourquoi ça marche ?</strong></p>
+            <ul>
+                <li>L'estimation de l'échantillon capture la <strong>structure réelle</strong> mais avec du <strong>bruit</strong></li>
+                <li>La cible est <strong>stable</strong> mais peut être <strong>biaisée</strong> (ne capture pas les corrélations)</li>
+                <li>Le shrinkage trouve le <strong>meilleur compromis</strong> entre ces deux extrêmes</li>
+            </ul>
+            
+            <p><strong>Le coefficient $\alpha$ :</strong> Si $\alpha$ est proche de 1, on fait confiance à l'échantillon (beaucoup de données). Si $\alpha$ est proche de 0, on fait confiance à la cible (peu de données, beaucoup de bruit).</p>
+        </div>
+
+        <div class="proof">
+            <div class="proof-title">Dérivation du Coefficient Optimal $\alpha$ :</div>
+            
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>Critère d'optimisation :</strong>
+            </div>
+            <p>On cherche $\alpha$ qui minimise l'erreur quadratique moyenne (MSE) :</p>
+            $$
+            \text{MSE}(\alpha) = \mathbb{E}\left[ \|\hat{\boldsymbol{\Sigma}}_{\text{LW}} - \boldsymbol{\Sigma}_{\text{true}}\|_F^2 \right]
+            $$
+            
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>Décomposition du biais et de la variance :</strong>
+            </div>
+            <p>Le MSE se décompose en :</p>
+            $$
+            \text{MSE} = \text{Biais}^2 + \text{Variance}
+            $$
+            <p>où :</p>
+            <ul>
+                <li><strong>Biais :</strong> L'estimation de l'échantillon a un biais faible mais une variance élevée</li>
+                <li><strong>Variance :</strong> La cible a un biais potentiel mais une variance faible</li>
+            </ul>
+            
+            <div class="step">
+                <span class="step-number">3</span>
+                <strong>Solution optimale :</strong>
+            </div>
+            <p>Ledoit & Wolf (2004) montrent que le $\alpha$ optimal est :</p>
+            $$
+            \alpha^* = \frac{\sum_{i,j} \text{Var}(\hat{\Sigma}_{ij})}{\sum_{i,j} [\hat{\Sigma}_{ij} - \Sigma_{\text{target},ij}]^2 + \text{Var}(\hat{\Sigma}_{ij})}
+            $$
+            <p><strong>Interprétation :</strong> Si la variance de l'estimation est grande (beaucoup de bruit), $\alpha^*$ est petit (on fait plus confiance à la cible). Si l'estimation est proche de la cible, $\alpha^*$ est grand (on fait confiance à l'échantillon).</p>
+        </div>
+
+        <h3>11.1 Choix de la Cible</h3>
+
+        <div class="note" style="background: #e1f5fe; border-left-color: #0288d1;">
+            <div class="note-title" style="color: #01579b;">💡 Différentes cibles possibles :</div>
+            <p><strong>1. Matrice Identité ($I$) :</strong></p>
+            <ul>
+                <li>Simple et stable</li>
+                <li>Suppose que les actifs sont indépendants (corrélations nulles)</li>
+                <li>Bonne quand les corrélations sont faibles ou mal estimées</li>
+            </ul>
+            
+            <p><strong>2. Matrice Diagonale (variances seulement) :</strong></p>
+            <ul>
+                <li>Conserve les variances individuelles (estimées mieux que les covariances)</li>
+                <li>Suppose des corrélations nulles</li>
+                <li>Meilleure que l'identité si les variances sont bien estimées</li>
+            </ul>
+            
+            <p><strong>3. Modèle à un facteur (Single Index Model) :</strong></p>
+            <ul>
+                <li>$\boldsymbol{\Sigma}_{\text{target}} = \sigma_m^2 \boldsymbol{\beta} \boldsymbol{\beta}^T + \mathbf{D}$</li>
+                <li>Où $\boldsymbol{\beta}$ sont les bêtas (sensibilité au marché) et $\mathbf{D}$ est diagonal</li>
+                <li>Capture la structure de corrélation via le facteur de marché</li>
+            </ul>
+            
+            <p><strong>4. Modèle à facteurs multiples (Fama-French) :</strong></p>
+            <ul>
+                <li>Extension du modèle à un facteur avec plusieurs facteurs</li>
+                <li>Plus sophistiqué mais nécessite plus de données</li>
+            </ul>
+        </div>
+
+        <h3>11.2 Avantages du Shrinkage</h3>
+
+        <div class="theorem">
+            <div class="theorem-title">Théorème 11.1 : Propriétés du Shrinkage</div>
+            <p>L'estimateur de Ledoit-Wolf :</p>
+            <ol>
+                <li><strong>Réduit le bruit :</strong> La variance de l'estimation est réduite</li>
+                <li><strong>Améliore la condition :</strong> Le conditionnement de la matrice est amélioré (plus stable numériquement)</li>
+                <li><strong>Meilleure performance hors échantillon :</strong> Les portefeuilles optimisés avec $\hat{\boldsymbol{\Sigma}}_{\text{LW}}$ ont généralement une meilleure performance réelle</li>
+                <li><strong>Garde la structure :</strong> Les corrélations importantes sont préservées</li>
+            </ol>
+        </div>
+
+        <div class="note" style="background: #f3e5f5; border-left-color: #9c27b0;">
+            <div class="note-title" style="color: #6a1b9a;">💡 Pourquoi le shrinkage améliore la performance ?</div>
+            <p><strong>Le problème de l'overfitting :</strong> L'estimation de l'échantillon peut "surapprendre" les données historiques, capturant du bruit comme s'il s'agissait de structure réelle. Quand on optimise avec cette matrice bruitée, le portefeuille est optimisé pour le bruit historique, pas pour la vraie structure.</p>
+            
+            <p><strong>La solution du shrinkage :</strong> En réduisant le bruit, on se concentre sur la structure réelle. Le portefeuille optimisé est donc plus robuste et performe mieux sur de nouvelles données.</p>
+            
+            <p><strong>Exemple :</strong> Si deux actifs ont une corrélation historiquement élevée due au hasard (bruit), l'estimation de l'échantillon va capturer cela. Le shrinkage va réduire cette corrélation artificielle, évitant une mauvaise allocation.</p>
+        </div>
+
+        <hr style="margin: 40px 0; border: none; border-top: 2px solid #ddd;">
+
+        <h2>🌀 CHAPITRE 12 : Copules pour Stress Testing</h2>
+
+        <div class="note" style="background: #fff3e0; border-left-color: #ff9800;">
+            <div class="note-title" style="color: #e65100;">💡 Pourquoi les copules pour le stress testing ?</div>
+            <p><strong>Le problème de la corrélation linéaire :</strong> La corrélation de Pearson (utilisée dans $\boldsymbol{\Sigma}$) mesure seulement la <strong>dépendance linéaire</strong>. Elle ne capture pas :</p>
+            <ul>
+                <li>Les <strong>dépendances non-linéaires</strong> (ex: deux actifs qui bougent ensemble seulement en période de crise)</li>
+                <li>Les <strong>dépendances asymétriques</strong> (la corrélation peut être différente en hausse vs en baisse)</li>
+                <li>Les <strong>dépendances extrêmes</strong> (les corrélations peuvent augmenter drastiquement en période de stress)</li>
+            </ul>
+            
+            <p><strong>Exemple concret :</strong> En période normale, deux actions peuvent avoir une corrélation de 0.3. Mais en période de crise (krach), cette corrélation peut monter à 0.9 (tout baisse ensemble). La corrélation moyenne ne capture pas cette dynamique.</p>
+            
+            <p><strong>Le problème pour le stress testing :</strong> Pour tester la résistance d'un portefeuille à des scénarios extrêmes, on a besoin de modéliser correctement les <strong>dépendances en période de stress</strong>. C'est exactement ce que font les copules !</p>
+            
+            <p><strong>La solution : Copules</strong> Les copules permettent de modéliser séparément :</p>
+            <ol>
+                <li>Les <strong>distributions marginales</strong> de chaque actif (comment chaque actif se comporte individuellement)</li>
+                <li>La <strong>structure de dépendance</strong> entre les actifs (comment ils bougent ensemble)</li>
+            </ol>
+            <p>Cette séparation permet de modéliser des dépendances complexes et non-linéaires, particulièrement importantes pour les scénarios de stress.</p>
+        </div>
+
+        <div class="definition">
+            <div class="definition-title">Définition 12.1 : Copule (Théorème de Sklar)</div>
+            <p>Selon le théorème de Sklar, toute fonction de répartition multivariée $F(x_1, \ldots, x_n)$ peut être décomposée en :</p>
+            $$
+            F(x_1, \ldots, x_n) = C(F_1(x_1), \ldots, F_n(x_n))
+            $$
+            <p>où :</p>
+            <ul>
+                <li>$F_i$ sont les fonctions de répartition <strong>marginales</strong> (distributions individuelles)</li>
+                <li>$C$ est la <strong>copule</strong> (structure de dépendance)</li>
+            </ul>
+            <p>La copule $C$ est une fonction de répartition sur $[0,1]^n$ avec des marginales uniformes.</p>
+        </div>
+
+        <div class="note" style="background: #e8f5e9; border-left-color: #4caf50;">
+            <div class="note-title" style="color: #2e7d32;">🔗 Intuition de la copule :</div>
+            <p><strong>L'idée fondamentale :</strong> Au lieu de modéliser directement la distribution jointe (complexe), on modélise séparément :</p>
+            <ol>
+                <li><strong>Comment chaque actif se comporte seul</strong> (marginales) - ex: "L'actif A suit une distribution normale avec moyenne 10% et écart-type 15%"</li>
+                <li><strong>Comment les actifs bougent ensemble</strong> (copule) - ex: "Quand l'actif A baisse de plus de 20%, l'actif B baisse aussi de plus de 20% avec probabilité 0.8"</li>
+            </ol>
+            
+            <p><strong>Avantage :</strong> On peut choisir des marginales complexes (distributions avec queues épaisses, asymétrie) et une copule qui capture les dépendances extrêmes, indépendamment.</p>
+        </div>
+
+        <h3>12.1 Copule Gaussienne</h3>
+
+        <div class="formula">
+            <p><strong>Copule Gaussienne :</strong></p>
+            <p>La copule Gaussienne utilise une structure de dépendance basée sur la corrélation normale :</p>
+            $$
+            C_{\text{Gauss}}(u_1, \ldots, u_n; \mathbf{R}) = \Phi_{\mathbf{R}}(\Phi^{-1}(u_1), \ldots, \Phi^{-1}(u_n))
+            $$
+            <p>où :</p>
+            <ul>
+                <li>$u_i = F_i(x_i)$ sont les probabilités transformées (uniforme sur [0,1])</li>
+                <li>$\Phi$ est la fonction de répartition normale standard</li>
+                <li>$\Phi_{\mathbf{R}}$ est la fonction de répartition normale multivariée avec matrice de corrélation $\mathbf{R}$</li>
+            </ul>
+        </div>
+
+        <div class="note" style="background: #e1f5fe; border-left-color: #0288d1;">
+            <div class="note-title" style="color: #01579b;">💡 Caractéristiques de la copule Gaussienne :</div>
+            <p><strong>Avantages :</strong></p>
+            <ul>
+                <li>Simple à implémenter et comprendre</li>
+                <li>Paramètre unique : la matrice de corrélation $\mathbf{R}$</li>
+                <li>Bonne approximation si les dépendances sont modérées</li>
+            </ul>
+            
+            <p><strong>Limitations :</strong></p>
+            <ul>
+                <li><strong>Dépendance symétrique :</strong> La dépendance est la même en hausse et en baisse</li>
+                <li><strong>Pas de dépendance extrême :</strong> Ne capture pas bien l'augmentation des corrélations en période de stress</li>
+                <li><strong>Queues fines :</strong> Sous-estime la probabilité d'événements extrêmes simultanés</li>
+            </ul>
+            
+            <p><strong>Quand l'utiliser :</strong> Pour des scénarios de stress modérés ou quand on veut une approximation simple.</p>
+        </div>
+
+        <h3>12.2 Copule t-Student</h3>
+
+        <div class="formula">
+            <p><strong>Copule t-Student :</strong></p>
+            $$
+            C_{\text{t}}(u_1, \ldots, u_n; \mathbf{R}, \nu) = t_{\mathbf{R},\nu}(t_\nu^{-1}(u_1), \ldots, t_\nu^{-1}(u_n))
+            $$
+            <p>où :</p>
+            <ul>
+                <li>$t_\nu$ est la fonction de répartition t-Student avec $\nu$ degrés de liberté</li>
+                <li>$t_{\mathbf{R},\nu}$ est la fonction de répartition t-Student multivariée</li>
+                <li>$\nu$ contrôle l'épaisseur des queues (plus $\nu$ est petit, plus les queues sont épaisses)</li>
+            </ul>
+        </div>
+
+        <div class="note" style="background: #f3e5f5; border-left-color: #9c27b0;">
+            <div class="note-title" style="color: #6a1b9a;">💡 Pourquoi la copule t-Student est meilleure pour le stress testing ?</div>
+            <p><strong>Dépendance extrême (Tail Dependence) :</strong> Contrairement à la copule Gaussienne, la copule t-Student a une <strong>dépendance extrême positive</strong>. Cela signifie que les événements extrêmes (pertes importantes) ont tendance à se produire simultanément.</p>
+            
+            <p><strong>Exemple :</strong> Avec une copule t-Student avec $\nu = 3$, si un actif baisse de plus de 20%, la probabilité qu'un autre actif baisse aussi de plus de 20% est beaucoup plus élevée qu'avec une copule Gaussienne.</p>
+            
+            <p><strong>Pourquoi c'est important pour le stress testing ?</strong> En période de crise, les actifs ont tendance à chuter ensemble (corrélations augmentent). La copule t-Student capture cette réalité, permettant de mieux évaluer le risque de portefeuille en période de stress.</p>
+            
+            <p><strong>Le paramètre $\nu$ :</strong></p>
+            <ul>
+                <li>$\nu$ grand (ex: $\nu > 30$) : Proche de la copule Gaussienne (queues fines)</li>
+                <li>$\nu$ petit (ex: $\nu = 3-5$) : Queues très épaisses, forte dépendance extrême</li>
+                <li>En pratique, $\nu = 3-10$ est souvent utilisé pour modéliser les marchés financiers</li>
+            </ul>
+        </div>
+
+        <h3>12.3 Simulation de Scénarios avec Copules</h3>
+
+        <div class="proof">
+            <div class="proof-title">Algorithme de Simulation :</div>
+            
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>Estimation des marginales :</strong>
+            </div>
+            <p>Pour chaque actif $i$, on estime la distribution marginale $F_i$ (peut être normale, t-Student, empirique, etc.)</p>
+            
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>Estimation de la copule :</strong>
+            </div>
+            <p>On estime les paramètres de la copule (matrice de corrélation $\mathbf{R}$ et degrés de liberté $\nu$ pour la copule t-Student) à partir des données transformées $u_i = F_i(x_i)$.</p>
+            
+            <div class="step">
+                <span class="step-number">3</span>
+                <strong>Simulation :</strong>
+            </div>
+            <p>Pour générer un scénario :</p>
+            <ol type="a">
+                <li>Générer $(u_1, \ldots, u_n)$ depuis la copule (variables corrélées uniformes)</li>
+                <li>Transformer via les quantiles : $x_i = F_i^{-1}(u_i)$</li>
+            </ol>
+            <p>On obtient ainsi des rendements $(x_1, \ldots, x_n)$ avec les bonnes marginales ET la bonne structure de dépendance.</p>
+            
+            <div class="step">
+                <span class="step-number">4</span>
+                <strong>Stress Testing :</strong>
+            </div>
+            <p>On peut :</p>
+            <ul>
+                <li>Générer des milliers de scénarios avec la copule</li>
+                <li>Calculer la distribution des rendements du portefeuille</li>
+                <li>Évaluer le CVaR, la VaR, et autres métriques de risque</li>
+                <li>Comparer avec les scénarios historiques</li>
+            </ul>
+        </div>
+
+        <div class="note" style="background: #fff9c4; border-left-color: #fbc02d;">
+            <div class="note-title" style="color: #f57f17;">💡 Pourquoi cette approche est puissante pour le stress testing ?</div>
+            <p><strong>Avantages :</strong></p>
+            <ul>
+                <li><strong>Flexibilité :</strong> On peut modéliser des marginales complexes (asymétrie, queues épaisses) indépendamment de la dépendance</li>
+                <li><strong>Réalisme :</strong> La copule t-Student capture la dépendance extrême observée en période de crise</li>
+                <li><strong>Génération de scénarios :</strong> On peut générer des scénarios de stress réalistes même s'ils ne sont pas dans l'historique</li>
+                <li><strong>Comparaison :</strong> On peut comparer différents modèles (Gaussien vs t-Student) pour voir l'impact sur le risque</li>
+            </ul>
+            
+            <p><strong>Exemple d'application :</strong> Un portefeuille peut avoir un CVaR de 5% avec une copule Gaussienne, mais de 10% avec une copule t-Student (car elle capture mieux les crises simultanées). Le vrai risque est probablement plus proche de 10% !</p>
+        </div>
+
+        <div class="conclusion">
+            <h2>🎓 Synthèse des 4 Chapitres Avancés</h2>
+            
+            <div style="text-align: left; margin-top: 20px;">
+                <p><strong>🔗 Comment ces chapitres s'articulent :</strong></p>
+                <ol style="margin-left: 20px; margin-top: 15px;">
+                    <li><strong>CVaR (Chapitre 9) :</strong> Mesure le risque de manière plus réaliste que la variance, en se concentrant sur les pertes extrêmes. <strong>Lien :</strong> Utilise les copules pour estimer le CVaR avec des dépendances réalistes.</li>
+                    
+                    <li><strong>Optimisation Robuste (Chapitre 10) :</strong> Protège contre les erreurs d'estimation des paramètres. <strong>Lien :</strong> Utilise une estimation robuste de covariance (Ledoit-Wolf) pour définir l'ensemble d'incertitude.</li>
+                    
+                    <li><strong>Estimation Robuste (Chapitre 11) :</strong> Améliore l'estimation de $\boldsymbol{\Sigma}$ en réduisant le bruit. <strong>Lien :</strong> Fournit une meilleure base pour l'optimisation (classique ou robuste) et réduit le besoin de robustesse.</li>
+                    
+                    <li><strong>Copules (Chapitre 12) :</strong> Modélise les dépendances complexes pour le stress testing. <strong>Lien :</strong> Permet d'évaluer le CVaR de manière plus réaliste et de générer des scénarios de stress pour tester la robustesse du portefeuille.</li>
+                </ol>
+                
+                <p style="margin-top: 25px;"><strong>💡 Workflow complet :</strong></p>
+                <ol style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Estimer</strong> $\boldsymbol{\Sigma}$ avec Ledoit-Wolf (Chapitre 11) pour réduire le bruit</li>
+                    <li><strong>Optimiser</strong> le portefeuille avec optimisation robuste (Chapitre 10) pour protéger contre les erreurs d'estimation</li>
+                    <li><strong>Évaluer</strong> le risque avec CVaR (Chapitre 9) au lieu de la variance</li>
+                    <li><strong>Tester</strong> la résistance avec des scénarios générés via copules (Chapitre 12)</li>
+                </ol>
+                
+                <p style="margin-top: 25px;"><strong>🎯 Impact pratique :</strong></p>
+                <p>Cette approche intégrée permet de :</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Construire des portefeuilles <strong>plus robustes</strong> aux erreurs d'estimation</li>
+                    <li>Mieux <strong>évaluer le risque réel</strong> (CVaR au lieu de variance)</li>
+                    <li>Mieux <strong>préparer aux crises</strong> (copules pour stress testing)</li>
+                    <li>Améliorer la <strong>performance hors échantillon</strong> (estimation robuste)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="conclusion">
+            <h2>🎓 Conclusion : Synthèse des Liens Conceptuels</h2>
+            
+            <div style="text-align: left; margin-top: 20px;">
+                <p><strong>🔗 Le fil conducteur de la théorie :</strong></p>
+                <ol style="margin-left: 20px; margin-top: 15px;">
+                    <li><strong>Le problème fondamental</strong> : Trouver le meilleur compromis rendement-risque → <strong>Formulation QP</strong></li>
+                    <li><strong>La garantie mathématique</strong> : La convexité assure l'existence et l'unicité de la solution → <strong>Propriétés de Σ</strong></li>
+                    <li><strong>La méthode de résolution</strong> : Les conditions KKT caractérisent l'optimum → <strong>Lagrangien et multiplicateurs</strong></li>
+                    <li><strong>La solution pratique</strong> : Résolution analytique (simple) ou numérique (générale) → <strong>Algorithmes QP</strong></li>
+                    <li><strong>L'application financière</strong> : La frontière efficiente visualise tous les portefeuilles optimaux → <strong>Plan risque-rendement</strong></li>
+                </ol>
+                
+                <p style="margin-top: 25px;"><strong>💡 Pourquoi tout cela fonctionne ensemble ?</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>La <strong>matrice de covariance Σ</strong> capture les relations entre actifs (diversification)</li>
+                    <li>La <strong>convexité</strong> garantit qu'on trouve toujours le vrai optimum (pas de pièges locaux)</li>
+                    <li>Les <strong>contraintes</strong> reflètent les règles réelles (budget, diversification, réglementation)</li>
+                    <li>Les <strong>conditions KKT</strong> lient mathématiquement l'optimum aux contraintes (équilibre)</li>
+                    <li>La <strong>frontière efficiente</strong> montre visuellement le compromis optimal pour chaque niveau de risque</li>
+                </ul>
+                
+                <p style="margin-top: 25px;"><strong>🎯 Impact pratique :</strong></p>
+                <p>Cette théorie permet aux gérants de portefeuille de :</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Allouer le capital de manière <strong>scientifique</strong> (pas juste intuitive)</li>
+                    <li>Respecter les <strong>contraintes réglementaires</strong> (OPCVM) tout en optimisant</li>
+                    <li>Visualiser et communiquer les <strong>compromis rendement-risque</strong></li>
+                    <li>Adapter l'allocation selon l'<strong>aversion au risque</strong> de l'investisseur</li>
+                </ul>
+            </div>
+            
+            <p style="margin-top: 30px; text-align: center;"><strong>Cette démonstration mathématique rigoureuse montre la compréhension profonde des fondements théoriques de l'optimisation de portefeuille, avec une vision claire des liens entre chaque concept.</strong></p>
+        </div>
+
+        <div style="margin-top: 40px; text-align: center; color: #666; font-size: 0.9em;">
+            <p>Développé pour le <strong>Data & AI Internship Challenge 2026 - Wafa Gestion</strong></p>
+            <p style="margin-top: 10px;">Démonstration mathématique complète - Programmation Quadratique</p>
+        </div>
+    </div>
+    
+    <script>
+        // Vérification que le contenu est chargé
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ Document chargé avec succès');
+            console.log('✅ Container trouvé:', document.querySelector('.container') !== null);
+            console.log('✅ MathJax configuré:', typeof window.MathJax !== 'undefined');
+        });
+        
+        // Vérification du chargement de MathJax
+        window.addEventListener('load', function() {
+            if (typeof MathJax !== 'undefined' && MathJax.startup) {
+                console.log('✅ MathJax chargé avec succès');
+            } else {
+                console.warn('⚠️ MathJax n\'est pas encore chargé, attendez quelques secondes...');
+                setTimeout(function() {
+                    if (typeof MathJax !== 'undefined' && MathJax.startup) {
+                        console.log('✅ MathJax chargé après délai');
+                    } else {
+                        console.error('❌ MathJax n\'a pas pu se charger. Vérifiez votre connexion internet.');
+                    }
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,43 @@
+# Backend Dependencies - Portfolio Optimizer Pro
+# Python 3.10+
+
+# Web Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Data Processing
+numpy==1.24.3
+pandas==2.1.3
+scipy==1.11.4
+
+# Optimization
+cvxpy==1.4.1
+scikit-learn==1.3.2
+
+# Data Sources
+yfinance==0.2.32
+requests==2.31.0
+beautifulsoup4==4.12.2
+lxml==4.9.3
+
+# Database
+sqlalchemy==2.0.23
+sqlite3  # Built-in
+
+# Caching
+redis==5.0.1
+python-redis==5.0.1
+
+# Utilities
+pydantic==2.5.0
+pydantic-settings==2.1.0
+python-dotenv==1.0.0
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2
+
+# CORS is handled by fastapi.middleware.cors
+
