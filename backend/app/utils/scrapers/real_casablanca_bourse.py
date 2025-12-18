@@ -89,26 +89,79 @@ class RealCasablancaBourseScraper:
             soup = BeautifulSoup(response.content, 'html.parser')
             stocks = []
             
-            # Strategy 1: Look for tables with stock data
+            # Strategy 0: Extract from JSON in scripts (Next.js app)
+            scripts = soup.find_all('script')
+            for script in scripts:
+                content = script.string or ''
+                # Look for JSON data with instruments
+                if '__NEXT_DATA__' in content or 'instruments' in content.lower() or 'ticker' in content.lower():
+                    try:
+                        import json
+                        import re
+                        # Try to extract JSON
+                        json_match = re.search(r'\{.*"props".*\}', content, re.DOTALL)
+                        if json_match:
+                            data = json.loads(json_match.group())
+                            # Navigate through Next.js data structure
+                            # This needs to be adapted based on actual structure
+                            logger.debug("Found JSON data in script")
+                    except:
+                        pass
+            
+            # Strategy 1: Look for tables with stock data (found structure: table with class 'w-full')
             tables = soup.find_all('table')
             for table in tables:
                 rows = table.find_all('tr')
+                if len(rows) < 2:  # Need at least header + 1 data row
+                    continue
+                
+                # Parse header to understand column structure
+                header = rows[0]
+                header_cells = header.find_all(['th', 'td'])
+                header_texts = [cell.get_text(strip=True) for cell in header_cells]
+                
+                # Find column indices
+                ticker_idx = -1
+                instrument_idx = -1
+                for i, text in enumerate(header_texts):
+                    if 'ticker' in text.lower() or 'symbole' in text.lower():
+                        ticker_idx = i
+                    if 'instrument' in text.lower() or 'nom' in text.lower():
+                        instrument_idx = i
+                
+                # Parse data rows
                 for row in rows[1:]:  # Skip header
                     cells = row.find_all(['td', 'th'])
-                    if len(cells) >= 2:
-                        # Try to extract symbol and name
-                        symbol = cells[0].get_text(strip=True)
-                        name = cells[1].get_text(strip=True) if len(cells) > 1 else None
-                        
-                        # Filter valid stock symbols (usually 2-4 uppercase letters)
-                        if symbol and len(symbol) <= 5 and symbol.isupper():
-                            stocks.append({
-                                'symbol': symbol,
-                                'name': name or symbol,
-                                'sector': cells[2].get_text(strip=True) if len(cells) > 2 else None,
-                                'market_cap': self._parse_market_cap(cells[3].get_text(strip=True)) if len(cells) > 3 else None,
-                                'currency': 'MAD'
-                            })
+                    if len(cells) < 2:
+                        continue
+                    
+                    # Extract symbol (ticker)
+                    if ticker_idx >= 0 and ticker_idx < len(cells):
+                        symbol = cells[ticker_idx].get_text(strip=True).upper()
+                    else:
+                        # Try to find symbol in any cell (usually short uppercase)
+                        symbol = None
+                        for cell in cells:
+                            text = cell.get_text(strip=True).upper()
+                            if len(text) <= 5 and text.isalpha() and text.isupper():
+                                symbol = text
+                                break
+                    
+                    # Extract name (instrument)
+                    if instrument_idx >= 0 and instrument_idx < len(cells):
+                        name = cells[instrument_idx].get_text(strip=True)
+                    else:
+                        name = None
+                    
+                    # Filter valid stock symbols
+                    if symbol and len(symbol) >= 2 and len(symbol) <= 5:
+                        stocks.append({
+                            'symbol': symbol,
+                            'name': name or symbol,
+                            'sector': None,  # Will need to find this
+                            'market_cap': None,  # Will need to find this
+                            'currency': 'MAD'
+                        })
             
             # Strategy 2: Look for links with stock symbols
             if not stocks:
