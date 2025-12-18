@@ -63,32 +63,38 @@ async def get_stock_history(
     
     Returns list of price data with date, open, high, low, close, volume
     """
-    try:
-        # Validate date format if provided
-        if start_date:
-            try:
-                datetime.strptime(start_date, '%Y-%m-%d')
-            except ValueError:
-                raise HTTPException(
-                    status_code=400,
-                    detail="start_date must be in YYYY-MM-DD format"
-                )
-        
-        if end_date:
-            try:
-                datetime.strptime(end_date, '%Y-%m-%d')
-            except ValueError:
-                raise HTTPException(
-                    status_code=400,
-                    detail="end_date must be in YYYY-MM-DD format"
-                )
-        
-        history = await data_service.get_stock_history(
-            symbol=symbol,
-            start_date=start_date,
-            end_date=end_date,
-            use_cache=use_cache
-        )
+        try:
+            # Handle days parameter
+            if days and not start_date:
+                from datetime import datetime, timedelta
+                end_dt = datetime.strptime(end_date, '%Y-%m-%d') if end_date else datetime.now()
+                start_date = (end_dt - timedelta(days=days)).strftime('%Y-%m-%d')
+            
+            # Validate date format if provided
+            if start_date:
+                try:
+                    datetime.strptime(start_date, '%Y-%m-%d')
+                except ValueError:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="start_date must be in YYYY-MM-DD format"
+                    )
+            
+            if end_date:
+                try:
+                    datetime.strptime(end_date, '%Y-%m-%d')
+                except ValueError:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="end_date must be in YYYY-MM-DD format"
+                    )
+            
+            history = await data_service.get_stock_history(
+                symbol=symbol,
+                start_date=start_date,
+                end_date=end_date,
+                use_cache=use_cache
+            )
         
         if not history:
             logger.warning(f"No history found for symbol {symbol}")

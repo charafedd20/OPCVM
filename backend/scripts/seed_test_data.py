@@ -43,9 +43,11 @@ def seed_stock_data():
         
         db.commit()
         
-        # Generate price history for last 90 days
+        # Generate price history for extended periods
+        # Options: 90 days, 1 year (252 trading days), 3 years, 5 years
         end_date = datetime.now()
-        start_date = end_date - timedelta(days=90)
+        # Generate 3 years of data (approximately 756 trading days)
+        start_date = end_date - timedelta(days=1095)  # 3 years = ~1095 calendar days
         
         for stock in stocks:
             symbol = stock["symbol"]
@@ -54,34 +56,47 @@ def seed_stock_data():
             current_date = start_date
             current_price = base_price
             
-            while current_date <= end_date:
-                # Check if price already exists
-                existing = db.query(StockPrice).filter(
-                    StockPrice.symbol == symbol,
-                    StockPrice.date == current_date
-                ).first()
-                
-                if not existing:
-                    # Generate realistic price movement
-                    change = random.uniform(-0.03, 0.03)  # ±3% daily change
-                    current_price = current_price * (1 + change)
+            # Only generate data for trading days (Monday-Friday)
+            # Skip weekends to be more realistic
+            trading_days_count = 0
+            max_trading_days = 756  # ~3 years of trading days (252 days/year * 3)
+            
+            while current_date <= end_date and trading_days_count < max_trading_days:
+                # Skip weekends (Saturday=5, Sunday=6)
+                if current_date.weekday() < 5:  # Monday=0 to Friday=4
+                    # Check if price already exists
+                    existing = db.query(StockPrice).filter(
+                        StockPrice.symbol == symbol,
+                        StockPrice.date == current_date
+                    ).first()
                     
-                    high = current_price * random.uniform(1.0, 1.02)
-                    low = current_price * random.uniform(0.98, 1.0)
-                    open_price = current_price * random.uniform(0.99, 1.01)
-                    volume = random.randint(100000, 5000000)
-                    
-                    stock_price = StockPrice(
-                        symbol=symbol,
-                        date=current_date,
-                        open=round(open_price, 2),
-                        high=round(high, 2),
-                        low=round(low, 2),
-                        close=round(current_price, 2),
-                        volume=volume,
-                        adjusted_close=round(current_price, 2)
-                    )
-                    db.add(stock_price)
+                    if not existing:
+                        # Generate realistic price movement with trend
+                        # Add slight upward trend over time
+                        trend_factor = 1 + (trading_days_count / max_trading_days) * 0.1  # 10% trend over 3 years
+                        daily_change = random.uniform(-0.03, 0.03)  # ±3% daily change
+                        current_price = current_price * (1 + daily_change) * (1 + 0.0001 * trend_factor)
+                        
+                        # Ensure price doesn't go negative
+                        current_price = max(1.0, current_price)
+                        
+                        high = current_price * random.uniform(1.0, 1.02)
+                        low = current_price * random.uniform(0.98, 1.0)
+                        open_price = current_price * random.uniform(0.99, 1.01)
+                        volume = random.randint(100000, 5000000)
+                        
+                        stock_price = StockPrice(
+                            symbol=symbol,
+                            date=current_date,
+                            open=round(open_price, 2),
+                            high=round(high, 2),
+                            low=round(low, 2),
+                            close=round(current_price, 2),
+                            volume=volume,
+                            adjusted_close=round(current_price, 2)
+                        )
+                        db.add(stock_price)
+                        trading_days_count += 1
                 
                 current_date += timedelta(days=1)
         
