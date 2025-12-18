@@ -66,14 +66,34 @@ async def get_stocks_summary():
             desc('total_volume')
         ).limit(10).all()
         
+        # Get stock names for most traded
+        most_traded_with_names = []
+        for symbol, volume in most_traded:
+            stock_info = db.query(StockInfo).filter(StockInfo.symbol == symbol).first()
+            most_traded_with_names.append({
+                "symbol": symbol,
+                "name": stock_info.name if stock_info else symbol,
+                "total_volume": int(volume)
+            })
+        
+        # Get all stocks with full info
+        all_stocks = db.query(StockInfo).all()
+        stocks_list = [
+            {
+                "symbol": s.symbol,
+                "name": s.name,
+                "sector": s.sector,
+                "market_cap": s.market_cap
+            }
+            for s in all_stocks
+        ]
+        
         return {
             "total_stocks": total_stocks,
             "sectors": sectors,
             "market_cap_statistics": market_cap_stats,
-            "most_traded_stocks": [
-                {"symbol": symbol, "total_volume": int(volume)}
-                for symbol, volume in most_traded
-            ],
+            "most_traded_stocks": most_traded_with_names,
+            "stocks": stocks_list,
             "last_updated": datetime.utcnow().isoformat()
         }
         
